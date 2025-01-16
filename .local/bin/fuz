@@ -2,9 +2,11 @@
 
 # Populated by fuz-cache script through xprofile at startup
 CACHE_DIR="/tmp/fuz_cache"
-[ -f "$HOME/.cache/light_mode" ] && fzf_theme="light" || fzf_theme="dark"
+# [ -f "$HOME/.cache/light_mode" ] && fzf_theme="light" || fzf_theme="dark"
 
-h_padding=$(printf '%*s' 14 ' ')
+[ -f "$HOME/.cache/light_mode" ] && source ~/.config/shell/fzf/tokyonight-day || source ~/.config/shell/fzf/tokyonight-night
+
+h_padding=$(printf '%*s' 6 ' ')
 h_gap=$(printf '%*s' 4 ' ')
 
 # Define the header using the escape sequences
@@ -29,8 +31,7 @@ cat $CACHE_DIR/all | fzf --ansi --prompt "   All  " \
   --bind "alt-4:change-prompt(   Videos  )+reload(cat $CACHE_DIR/videos)" \
   --header "$HEADER" \
   --height=100% --pointer=" " --ellipsis= --header-first --scheme=path --algo=v2 \
-  --preview-window "bottom,60%,border-top" --border=none --margin=5%,10%,5%,10% --info=inline-right \
-  --color="$fzf_theme" \
+  --preview-window "bottom,60%,border-top" --border=block --margin=5%,10%,5%,10% --info=inline-right \
   --preview "$PREVIEWER {}" \
   --bind "enter:execute:$OPENER {}" \
   --highlight-line \

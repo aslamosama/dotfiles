@@ -56,24 +56,24 @@ icon =
 default_icon =
 icon_position=off
 timeout = 2
-background = "#ffffff"
-foreground = "#000000"
-frame_color = "#0031a9"
+background = "#f3f4f5"
+foreground = "#283593"
+frame_color = "#9854f1"
 
 [urgency_normal]
 icon =
 default_icon =
 icon_position=off
 timeout = 5
-background = "#ffffff"
-foreground = "#000000"
-frame_color = "#0031a9"
+background = "#f3f4f5"
+foreground = "#283593"
+frame_color = "#9854f1"
 
 [urgency_critical]
 icon =
 default_icon =
 icon_position=off
 timeout = 0
-background = "#ffffff"
-foreground = "#000000"
-frame_color = "#a60000"
+background = "#f3f4f5"
+foreground = "#283593"
+frame_color = "#f52a65"

@@ -29,7 +29,7 @@ HEADER="${h_padding}\
   echo \"unbind(change)+change-prompt(fzf  )+enable-search+transform-query:echo {q} > /tmp/rg-fzf-r; cat /tmp/rg-fzf-f\"" \
   --bind 'alt-a:select-all,alt-d:deselect-all,alt-/:toggle-preview' \
   --margin=5%,10%,5%,10% --height=100% --reverse --info=inline-right \
-  --scrollbar=▐ --keep-right --border=none --ellipsis= \
+  --scrollbar=▐ --keep-right --border=block --ellipsis= \
   --prompt 'ripgrep  ' \
   --delimiter : \
   --header "$HEADER" --header-first \

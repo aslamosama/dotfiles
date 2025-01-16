@@ -43,6 +43,7 @@ z4h init || return
 export PATH="$PATH:${$(find ~/.local/bin -type d -printf %p:)%%:}"
 export PATH=$PATH:~/.local/share/npm/bin
 export PATH=$PATH:~/.local/share/nvim/mason/bin
+export PATH=$PATH:~/.local/share/nvim.bak/mason/bin
 
 # Export environment variables.
 export GPG_TTY=$TTY
@@ -52,8 +53,15 @@ export TERMINAL_PROG="st"
 export BROWSER="firefox"
 export MANPAGER="nvim +Man!"
 export XDG_SESSION_TYPE="x11"
-[ -f "$HOME/.cache/light_mode" ] && fzf_theme="light" || fzf_theme="dark"
-export FZF_DEFAULT_OPTS="--color=$fzf_theme --height=50% --reverse --prompt='  ' --pointer=' '"
+# [ -f "$HOME/.cache/light_mode" ] && fzf_theme="light" || fzf_theme="dark"
+# export FZF_DEFAULT_OPTS="--color=$fzf_theme --height=50% --reverse --prompt='  ' --pointer=' '"
+
+if [[ -f "$HOME/.cache/light_mode" ]]; then
+    z4h source ~/.config/shell/fzf/tokyonight-day
+else
+    z4h source ~/.config/shell/fzf/tokyonight-night
+fi
+# export FZF_DEFAULT_OPTS="--color=$fzf_theme --height=50% --reverse --prompt='  ' --pointer=' '"
 
 # ~/ Clean-up:
 export XDG_CONFIG_HOME="$HOME/.config"

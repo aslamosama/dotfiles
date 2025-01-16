@@ -4,7 +4,6 @@
 -Wextra
 -Wconversion
 -Wsign-conversion
--Werror
 -pedantic-errors
 --debug
 -Iinclude

@@ -1,13 +1,13 @@
 #!/usr/bin/env sh
 
-dmenu_command="dmenu -i -l 17 -W 200 -Y 380 -X 5 -bw 2"
+dmenu_command="dmenu -i"
 
 menu=$(
   cat <<EOF
-󰀻  Apps            | dmenu_run -bw 2 -i -W 390 -X 8 -Y 420 -l 15 -g 3
+󰀻  Apps            | dmenu_run -i -p "dmenu_run:"
 󰊖  Games           | game-launcher
   Light/Dark Mode | themeflip
-󰉦  Bar colors      | [ -e "$HOME/.cache/bar_color" ] && { rm "$HOME/.cache/bar_color"; renew-dwm; } || { touch "$HOME/.cache/bar_color"; renew-dwm; }
+󰉦  Bar colors      | bar_colors_toggle
   Fix audio       | fix-audio
   Edit Configs    | st -e confedit
   Web Search      | dmenu_web
@@ -24,9 +24,15 @@ menu=$(
 EOF
 )
 
-options=$(printf "%s\n" "$(echo "$menu" | cut -d '|' -f1)")
+# Remove trailing spaces from options
+options=$(echo "$menu" | cut -d '|' -f1 | sed 's/[[:space:]]*$//')
 selected_option=$(echo "$options" | eval "$dmenu_command")
 if [ -n "$selected_option" ]; then
-  action=$(echo "$menu" | grep "^$selected_option|" | cut -d '|' -f2-)
-  eval "$action"
+  # Preserve exact formatting for matching
+  action=$(echo "$menu" | awk -F'|' -v option="$selected_option" '$1 ~ option {print $2}')
+  if [ -n "$action" ]; then
+    eval "$action"
+  else
+    printf "Error: No matching action found for '%s'\n" "$selected_option" >&2
+  fi
 fi

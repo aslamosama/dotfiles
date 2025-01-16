@@ -2,7 +2,7 @@
 
 manga_dir="$HOME/me/manga"
 
-fzf_cmd_base="fzf --no-info --border --height=100% --margin=10%,22% --preview-window=border-left"
+fzf_cmd_base="fzf --no-info --border=block --height=100% --margin=10%,22% --preview-window=border-left"
 
 list_manga="fd -t d --base-directory $manga_dir -d 1 --format={/}"
 prompt_manga="'Manga  '"

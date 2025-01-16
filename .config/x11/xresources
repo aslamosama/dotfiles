@@ -1,9 +1,9 @@
 ! vim: filetype=xdefaults
 
-#include "colors/modus_vivendi"
+#include "colors/tokyonight-night"
 
 st.font:       JetBrains Mono:size=11
-st.borderpx:   10
+st.borderpx: 3
 st.alpha:      1
 st.tabspaces:  2
 st.cwscale:    1.0

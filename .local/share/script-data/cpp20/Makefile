@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++23 --debug
+CXXFLAGS = -std=c++23 --debug -Wall -Weffc++ -Wextra -Wconversion -Wsign-conversion
 SRCDIR := .
 BUILDDIR := build
 INCDIR := include
@@ -7,7 +7,7 @@ SRCS := $(wildcard $(SRCDIR)/*.cpp)
 OBJS := $(patsubst $(SRCDIR)/%.cpp,$(BUILDDIR)/%.o,$(SRCS))
 DEPS := $(OBJS:.o=.d)
 EXEC := main
-all: compile_msg build
+all: compile_msg build run
 compile_msg:
 	@echo -e "\e[34m Compile: $(SRCS)\e[0m"
 $(EXEC): $(OBJS)

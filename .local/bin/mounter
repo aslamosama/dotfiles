@@ -56,11 +56,11 @@ set -e
 test -n "$alldrives"
 
 # Feed all found drives to dmenu and get user choice.
-chosen="$(echo "$alldrives" | dmenu -p "Mount which drive?" -i -bw 2 -W 300 -X 1051 -Y 15 -l 10)"
+chosen="$(echo "$alldrives" | dmenu -p "Mount which drive?" -i)"
 
 # Function for prompting user for a mountpoint.
 getmount() {
-  mp="$(find /mnt /media /mount /home /home/user/win -maxdepth 1 -type d 2>/dev/null | dmenu -i -p "Mount this drive where?" -bw 2 -W 300 -X 1051 -Y 15 -l 10)"
+  mp="$(find /mnt /media /mount /home /home/user/win -maxdepth 1 -type d 2>/dev/null | dmenu -i -p "Mount this drive where?")"
   test -n "$mp"
   if [ ! -d "$mp" ]; then
     mkdiryn=$(printf "No\\nYes" | dmenu -i -p "$mp does not exist. Create it?")

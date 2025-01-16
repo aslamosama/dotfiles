@@ -4,7 +4,7 @@ BROWSER="firefox"
 SEARCH_ENGINE="https://duckduckgo.com/?q="
 BOOKMARKS_FILE="$HOME/.local/src/bookmarks/fmhy_in_bookmarks_starred_only.html"
 BANGS_FILE="$HOME/.local/share/script-data/bangs"
-DMENU_COMMAND="dmenu -i -bw 2 -W 700 -X 333 -Y 190 -l 15 -g 2 -p \" \""
+DMENU_COMMAND="dmenu -i -p \" \""
 BANG_CHAR=";"
 
 extract_bookmarks() {

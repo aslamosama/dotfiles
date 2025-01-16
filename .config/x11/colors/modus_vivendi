@@ -1,6 +1,6 @@
 !! vim: filetype=xdefaults
 
-*.background:             #000000
+*.background:             #1A1B26
 *.foreground:             #ffffff
 
 *.color0:                 #000000
@@ -33,3 +33,5 @@ dwm.titlenormbordercolor: #000000
 dwm.hidnormfgcolor:       #888888
 dwm.hidselfgcolor:        #888888
 slock.locked:             #ffffff
+
+dmenu.background:         #000000

@@ -18,6 +18,7 @@ fd_command="fd . \
   --full-path \"$search_dir\""
 
 fzf_command="fzf \
+  --border=block \
   --ansi \
   --height=100% \
   --keep-right \
@@ -27,7 +28,7 @@ fzf_command="fzf \
   --preview=\"[[ -n {1} ]] && $preview\" \
   --preview-window='bottom,60%,border-top' \
   --scrollbar='▐' --info=inline-right \
-  --margin=5%,10%,5%,10% --border=none \
+  --margin=5%,10%,5%,10%\
   --highlight-line \
   --prompt='  ' --pointer=' ' --ellipsis='' "
 

@@ -2,13 +2,14 @@
 
 # Feed this script a link and it will give dmenu
 # some choice programs to use to open it.
-feed="${1:-$(true | dmenu -bw 2 -Y 190 -X 333 -W 700 -p 'Link: ')}"
+feed="${1:-$(true | dmenu -p 'Link: ')}"
 
-case "$(printf "  Search in Browser\\n  Open in Browser\\n  Copy Selection\\n  Queue Video\\n  Queue Audio\\n  Queue Download\\n  Play\\n  Play (loop)\\n  View Image\\n  Set Background\\n  Open PDF\\n  Open in Vim" | dmenu -i -l 16 -W 200 -Y 15 -X 1151 -bw 2)" in
+case "$(printf "  Search in Browser\\n  Open in Browser\\n  Copy Selection\\n  Queue Video\\n  Queue Audio\\n  Queue Download\\n󰐑  Queue Playlist\\n  Play\\n  Play (loop)\\n  View Image\\n  Set Background\\n  Open PDF\\n  Open in Vim" | dmenu -i)" in
 "  Copy Selection") echo "$feed" | xclip -selection clipboard ;;
 "  Play") setsid -f mpv -quiet "$feed" >/dev/null 2>&1 ;;
 "  Play (loop)") setsid -f mpv -quiet --loop "$feed" >/dev/null 2>&1 ;;
-"  Queue Video") qndl "$feed" >/dev/null 2>&1 ;;
+"  Queue Video") qndl "$feed" 'yt-dlp --no-playlist --embed-metadata -ic' ;;
+"󰐑  Queue Playlist") qndl "$feed" >/dev/null 2>&1 ;;
 "  Queue Audio") qndl "$feed" 'yt-dlp -o "%(title)s.%(ext)s" -f bestaudio --embed-metadata --restrict-filenames' ;;
 "  Queue Download") qndl "$feed" 'curl -LO' >/dev/null 2>&1 ;;
 "  Open PDF") curl -sL "$feed" >"/tmp/$(echo "$feed" | sed "s|.*/||;s/%20/ /g")" && zathura "/tmp/$(echo "$feed" | sed "s|.*/||;s/%20/ /g")" >/dev/null 2>&1 ;;

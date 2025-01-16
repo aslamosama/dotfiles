@@ -1,5 +1,6 @@
 #!/bin/sh
 
+[ -f "$HOME/.cache/light_mode" ] && source ~/.config/shell/fzf/tokyonight-day || source ~/.config/shell/fzf/tokyonight-night
 configs="[1;34m$XDG_CONFIG_HOME/suckless/dmenu/[1;32mconfig.h
 [1;34m$XDG_CONFIG_HOME/emacs/[1;32minit.el
 [1;34m$XDG_CONFIG_HOME/suckless/dwm/[1;32mconfig.h
@@ -22,13 +23,12 @@ configs="[1;34m$XDG_CONFIG_HOME/suckless/dmenu/[1;32mconfig.h
 [1;34m$XDG_CONFIG_HOME/newsboat/[1;32mconfig
 [1;34m$XDG_CONFIG_HOME/newsboat/[1;32murls
 [1;34m$XDG_CONFIG_HOME/zathura/[1;32mzathurarc
-[1;34m$XDG_DATA_HOME/script-data/[1;32mkeybinds
-[1;34m$XDG_CONFIG_HOME/dmenu_web"
+[1;34m$XDG_DATA_HOME/script-data/[1;32mkeybinds"
 
 [ -f "$HOME/.cache/light_mode" ] && fzf_theme="light" || fzf_theme="dark"
 
 fzf_command="fzf --prompt '   Configs  ' \
-  --layout=reverse -m --height=100% --pointer=' ' \
+  --layout=reverse --multi --height=100% --pointer=' ' \
   --ellipsis= --scheme=path --algo=v2 \
 	--preview-window='bottom,60%,border-top' \
   --margin='5%,10%,5%,10%' --info=inline-right \

@@ -1,6 +1,6 @@
 !! vim: filetype=xdefaults
 
-*.background:             #ffffff
+*.background:             #E1E2E7
 *.foreground:             #000000
 *.accent_light:           #003497
 *.accent:                 #3548cf
