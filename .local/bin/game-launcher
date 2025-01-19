@@ -1,0 +1,32 @@
+#!/bin/bash
+
+main() {
+  local games_dir="$HOME/games"
+  local dmenu_cmd="dmenu -i -p 'Games:'"
+  local start_files
+  local selected_game
+  local selected_folder
+
+  [[ ! -d "$games_dir" ]] && return 1
+
+  if ! start_files=$(find "$games_dir" -type f -name "start.sh" -exec dirname {} \; 2>/dev/null | xargs -n1 basename | sort | uniq); then
+    return 1
+  fi
+
+  [[ -z "$start_files" ]] && return 1
+
+  if ! selected_game=$(printf "%s\n" "$start_files" | eval "$dmenu_cmd"); then
+    return 1
+  fi
+
+  selected_folder="$games_dir/$selected_game"
+
+  local start_script="$selected_folder/start.sh"
+  if [[ -x "$start_script" ]]; then
+    "$start_script"
+  else
+    return 1
+  fi
+}
+
+main

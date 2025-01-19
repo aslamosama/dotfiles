@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+# Merge PDFs in the current directory with specified order (by name or modification time)
+# Default output file is "merged_output.pdf"
+
+output="merged_output.pdf"
+sort_order="name" # Options: "name" or "date"
+
+merge_pdfs() {
+  local pdfs
+
+  # Choose sorting method based on user preference
+  case "$sort_order" in
+  name) pdfs=($(ls *.pdf | sort)) ;;
+  date) pdfs=($(ls -t *.pdf)) ;;
+  *)
+    printf "Invalid sort order specified.\n" >&2
+    return 1
+    ;;
+  esac
+
+  # Check if there are any PDF files to merge
+  if [[ ${#pdfs[@]} -eq 0 ]]; then
+    printf "No PDF files found in the current directory.\n" >&2
+    return 1
+  fi
+
+  # Perform the merge using pdfunite or pdftk
+  if command -v pdfunite >/dev/null; then
+    pdfunite "${pdfs[@]}" "$output" && printf "Merged PDFs into %s\n" "$output"
+  elif command -v pdftk >/dev/null; then
+    pdftk "${pdfs[@]}" cat output "$output" && printf "Merged PDFs into %s\n" "$output"
+  else
+    printf "Error: No PDF merging tool found (install pdftk or poppler-utils).\n" >&2
+    return 1
+  fi
+}
+
+merge_pdfs

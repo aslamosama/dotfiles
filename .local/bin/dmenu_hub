@@ -8,7 +8,6 @@ menu=$(
 󰊖  Games           | game-launcher
   Light/Dark Mode | themeflip
 󰉦  Bar colors      | bar_colors_toggle
-  Fix audio       | fix-audio
   Edit Configs    | st -e confedit
   Web Search      | dmenu_web
 󰌹  Handler         | dmenuhandler
