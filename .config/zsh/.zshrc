@@ -149,6 +149,8 @@ function lfcd () {
 function md() { [[ $# == 1 ]] && mkdir -p -- "$1" && cd -- "$1" }
 compdef _directories md
 
+[ "$(tty)" = "/dev/tty1" ] && ! pidof -s Xorg >/dev/null 2>&1 && exec startx "$XINITRC"
+
 # Set shell options: http://zsh.sourceforge.net/Doc/Release/Options.html.
 unsetopt PROMPT_SP
 setopt glob_dots
