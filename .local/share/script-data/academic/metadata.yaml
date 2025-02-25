@@ -1,0 +1,35 @@
+title: "Markdown Sample Document"
+thanks: "Thanks All Lorem ipsum dolor sit amet"
+author:
+  - "John Doe, Department of Pandoc, University of Example"
+  - "Jane Smith, School of Markdown, Example Institute"
+date: "2025-02-21"
+abstract: |
+  This paper explores the role of pandoc in writing,
+  focusing on pdf generation through LaTeX.
+# documentclass: article
+documentclass: scrartcl
+# documentclass: scrreprt
+# fontsize: 12pt
+geometry: a4paper, margin=1in
+bibliography: references.bib
+csl: "csl/ieee.csl"
+figPrefix: "Figure"
+tblPrefix: "Table"
+eqnPrefix: "Equation"
+header-includes:
+  - \usepackage{amsmath}
+  - \usepackage{graphicx}
+  - \usepackage{hyperref}
+toc: true
+lot: true
+lof: true
+numbersections: true
+pdfa: true
+lang: en
+dir: rtl
+keywords: ["Markdown", "pandoc", "LaTeX"]
+reference-section-title: "References"
+link-citations: true
+subject:
+description:

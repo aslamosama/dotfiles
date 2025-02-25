@@ -340,6 +340,7 @@ Vagrantfile             
 
 # custom rules
 *.pdf           
+*.bib           󱉟
 dotfiles/       󱁿
 downloads/      󱧨
 music/          󱍙

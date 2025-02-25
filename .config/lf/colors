@@ -178,3 +178,4 @@ fi      49;68      # FILE
 # Projects
 ~/projects   01;32
 ~/me         01;33
+*output.pdf  33
