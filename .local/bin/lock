@@ -1,0 +1,9 @@
+#!/bin/bash
+
+mpc pause
+pauseallmpv
+wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+kill -44 $(pidof dwmblocks)
+slock
+wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+kill -44 $(pidof dwmblocks)

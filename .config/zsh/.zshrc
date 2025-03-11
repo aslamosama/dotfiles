@@ -42,8 +42,8 @@ z4h init || return
 # Extend PATH.
 export PATH="$PATH:${$(find ~/.local/bin -type d -printf %p:)%%:}"
 export PATH=$PATH:~/.local/share/npm/bin
-export PATH=$PATH:~/.local/share/nvim/mason/bin
-export PATH=$PATH:~/.local/share/nvim.bak/mason/bin
+# export PATH=$PATH:~/.local/share/nvim/mason/bin
+# export PATH=$PATH:~/.local/share/nvim.bak/mason/bin
 
 # Export environment variables.
 export GPG_TTY=$TTY
