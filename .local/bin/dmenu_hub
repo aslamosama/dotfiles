@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-dmenu_command="dmenu -i"
+dmenu_command="dmenu -i -g 8 -l 2"
 
 menu=$(
   cat <<EOF

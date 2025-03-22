@@ -1,6 +1,5 @@
 set forcekittyanim
 
-priority cat
 remove atool
 
 preview audio audio/* {{

@@ -16,14 +16,6 @@ set cleaner ctpvclear
 &ctpv -s $id
 &ctpvquit $id
 
-# cmds/functions
-# cmd on-cd &{{
-#   printf "\033]0; $PWD\007" > /dev/tty
-#   export STARSHIP_SHELL=
-#   fmt="$(starship prompt)"
-#   lf -remote "send $id set promptfmt \"$fmt\""
-# }}
-
 cmd open ${{
   case $(file --mime-type "$(readlink -f $f)" -b) in
     application/vnd.openxmlformats-officedocument.spreadsheetml.sheet) localc $fx ;;
@@ -54,7 +46,7 @@ cmd open ${{
   esac
 }}
 
-cmd fzf_search ${{
+cmd find_files ${{
   selected=$(fzf-fd)
   if [ -n "$selected" ]; then
     lf -remote "send $id set hidden"
@@ -84,27 +76,6 @@ cmd delete ${{
 	[ $ans = "Yes" ] && trash-put $fx
 }}
 
-cmd bulkrename ${{
-  tmpfile_old="$(mktemp)"
-  tmpfile_new="$(mktemp)"
-
-  [ -n "$fs" ] && fs=$(basename -a $fs) || fs=$(ls)
-
-  echo "$fs" > "$tmpfile_old"
-  echo "$fs" > "$tmpfile_new"
-  $EDITOR "$tmpfile_new"
-
-  [ "$(wc -l < "$tmpfile_old")" -eq "$(wc -l < "$tmpfile_new")" ] || { rm -f "$tmpfile_old" "$tmpfile_new"; exit 1; }
-
-  paste "$tmpfile_old" "$tmpfile_new" | while IFS="$(printf '\t')" read -r src dst
-  do
-    [ "$src" = "$dst" ] || [ -e "$dst" ] || mv -- "$src" "$dst"
-  done
-
-  rm -f "$tmpfile_old" "$tmpfile_new"
-  lf -remote "send $id unselect"
-}}
-
 cmd git_branch ${{
   git branch | fzf | xargs git checkout
   pwd_shell=$(pwd | sed 's/\\/\\\\/g;s/"/\\"/g')
@@ -121,16 +92,6 @@ cmd git_root ${{
       read -r _
       exit 1
   fi
-}}
-
-cmd dragon ${{
-	setsid -f dragon-drop -x -a ${fx}
-}}
-
-cmd sanitize ${{
-	set -f
-	sanitizefs ${fx}
-	# sanitizefs ${PWD}
 }}
 
 cmd resize-for-wallpaper ${{
@@ -150,15 +111,11 @@ cmd resize-for-wallpaper ${{
 
 cmd extract-audio ${{
   for video in $fx; do
-    # Check if the file is a video
     mime_type=$(file --mime-type -b "$video")
     if [[ $mime_type == video/* ]]; then
-      # Extract the filename without the extension
       filename=$(basename -- "$video")
       extension="${filename##*.}"
       filename="${filename%.*}"
-
-      # Use ffmpeg to extract audio and save it as mp3
       ffmpeg -i "$video" -q:a 0 -map a "${filename}.mp3"
       echo "Audio extracted from $video and saved as ${filename}.mp3"
     else
@@ -167,19 +124,13 @@ cmd extract-audio ${{
   done
 }}
 
-cmd toggle_preview %{{
-  if [ "$lf_preview" = "true" ]; then
+cmd cycle_preview %{{
+  if [ "$lf_preview" = "false" ]; then
+      lf -remote "send $id :set preview true; set previewer ctpv; set ratios 1:2:3"
+  elif [ "$lf_previewer" = "ctpv" ]; then
+      lf -remote "send $id :set previewer exiftool; set ratios 1:2:3; reload"
+  else
       lf -remote "send $id :set preview false; set ratios 1:5"
-  else
-      lf -remote "send $id :set preview true; set ratios 1:2:3"
-  fi
-}}
-
-cmd change_preview %{{
-  if [ "$lf_previewer" = "ctpv" ]; then
-      lf -remote "send $id :set previewer exiftool; reload"
-  else
-      lf -remote "send $id :set previewer ctpv; reload"
   fi
 }}
 
@@ -190,14 +141,7 @@ cmd rename_random ${{
   done
 }}
 
-cmd new_files ${{
-  eval "ff $@"
-}}
-
-cmd share ${{
-  fileshare $f
-}}
-cmd setbg "$1"
+cmd new_files ${{ eval "ff $@" }}
 
 cmd jumpcd ${{
   jumpdir=$(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' ${XDG_CONFIG_HOME:-$HOME/.config}/shell/bm-dirs | fzf)
@@ -207,40 +151,29 @@ cmd jumpcd ${{
   fi
 }}
 
-cmd chmod_plus_x ${{
-  chmod +x $fx
-  lf -remote "send $id reload"
-}}
-
-cmd chmod_minus_x ${{
-  chmod -x $fx
-  lf -remote "send $id reload"
-}}
-
 map r       reload
 map gg      top
 map D       delete
 map <esc>   :quit
-map /       :fzf_search
+map /       :find_files
 map ?       $fzf-grep "$PWD"
 map o       $mimeopen --ask "$f"
 map <c-n>   push :new_files<space>
 map <enter> shell
 map <c-l>   unselect
 map .       set hidden!
-map zp      toggle_preview
-map ze      change_preview
+map zp      cycle_preview
 map J       jumpcd
 map so      $organize
-map <a-d>   dragon
-map <a-s>   share
+map <a-d>   ${{ setsid -f dragon-drop -x -a "$fx" }}
+map <a-s>   ${{ fileshare $f }}
 map <a-b>   resize-for-wallpaper
 map b       $setbg $f
 map V       push :!nvim<space>
 map W       $setsid -f $TERMINAL >/dev/null 2>&1
 
-map x+ chmod_plus_x
-map x- chmod_minus_x
+map x+ ${{ chmod +x $fx; lf -remote "send $id reload" }}
+map x- ${{ chmod -x $fx; lf -remote "send $id reload" }}
 map xs $setsid -f live-server "$PWD" >/dev/null 2>&1
 map xx $compiler $f
 
@@ -249,7 +182,7 @@ map C compress
 
 map i     :rename
 map I     $vidir $fx
-map <a-i> sanitize
+map <a-i> ${{ set -f; sanitizefs ${fx} }}
 map <a-I> rename_random
 
 map gh $lazygit

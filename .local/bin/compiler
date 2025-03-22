@@ -34,6 +34,10 @@ mom | ms) preconv "${file}" | refer -PS -e | groff -T pdf -m"${ext}" >"${base}.p
 c) gcc "${file}" -o "${dir}/$(basename "${base}")" && "${dir}/$(basename "${base}")" ;;
 cpp) g++ "${file}" -o "${dir}/$(basename "${base}")" && "${dir}/$(basename "${base}")" ;;
 cs) mcs "${file}" && mono "${base}.exe" ;;
+docx) libreoffice --convert-to pdf:writer_pdf_Export "${file}";;
+doc) libreoffice --convert-to pdf:writer_pdf_Export "${file}";;
+pptx) libreoffice --convert-to pdf "${file}";;
+ppt) libreoffice --convert-to pdf "${file}";;
 go) go run "${file}" ;;
 java) javac -d classes "${file}" && java -cp classes "${base}" ;;
 lua) lua "${file}" ;;
