@@ -12,20 +12,28 @@ if [ "${ext}" = "h" ] &&
   sudo make install && killall -USR1 st && renew-dwm && notify-send '  refresh complete'
 fi
 
-if [ -f "Makefile" ]; then
-  if printf "%s" "${dir}" | grep -q "$HOME/projects/cpp/"; then
-    bear -- make || exit 1
-  else
-    make || exit 1
+makefile_handler() {
+  local dir="${1:-$PWD}"
+  local use_bear=false
+  if [[ "$dir" == "$HOME/projects/cpp/"* ]]; then
+    use_bear=true
   fi
-  exit 0
-elif [ -f "../Makefile" ]; then
-  if printf "%s" "$(cd .. && pwd)" | grep -q "$HOME/projects/cpp/"; then
-    (cd .. && bear -- make) || exit 1
-  else
-    (cd .. && make) || exit 1
+  pushd "$dir" >/dev/null || exit 1
+  if [[ -f Makefile ]]; then
+    if $use_bear; then
+      bear -- make || exit 1
+    else
+      make || exit 1
+    fi
+    exit 0
   fi
-  exit 0
+  popd >/dev/null
+}
+
+if [[ -f Makefile ]]; then
+  makefile_handler "$PWD"
+elif [[ -f ../Makefile ]]; then
+  makefile_handler "$(cd .. && pwd)"
 fi
 
 case "${ext}" in

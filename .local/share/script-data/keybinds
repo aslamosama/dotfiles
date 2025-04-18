@@ -10,6 +10,8 @@ desktop-rightclick,  kill dunst & dmenu,            notifications close dmenu
 e,                   fuz-launcher,                  fuzzy search file opener finder
 f,                   fuz-launcher,                  fuzzy search file opener finder
 f7,                  clipboard manager,             clipmenu copy paste
+f8,                  gping,                         network monitoring latency
+f9,                  toggle bar,                    ui toggle bar
 grave,               copy nerd icons,               symbols nerdfont
 mod-',               calculator,                    scratchpad qalc apostrophe
 mod-0,               view all tags,                 navigation workspace view all

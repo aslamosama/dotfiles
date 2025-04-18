@@ -151,6 +151,31 @@ cmd jumpcd ${{
   fi
 }}
 
+cmd follow-link %{{
+  lf -remote "send $id select \"$(readlink -- "$f" | sed 's/\\/\\\\/g;s/"/\\"/g')\""
+}}
+
+# y (select for copy) and P to paste symlink
+# d (select for cut) and P to paste hard link
+cmd link %{{
+  set -- $(cat ~/.local/share/lf/files)
+  mode="$1"
+  shift
+  if [ "$#" -lt 1 ]; then
+    lf -remote "send $id echoerr no files to link"
+    exit
+  fi
+  case "$mode" in
+    # 'copy' mode indicates a symlink
+    copy) ln -sr -t . -- "$@";;
+    # while 'move' mode indicates a hard link
+    move)
+      ln -t . -- "$@"
+      lf -remote "send clear"
+      ;;
+  esac
+}}
+
 map r       reload
 map gg      top
 map D       delete
@@ -177,11 +202,14 @@ map x- ${{ chmod -x $fx; lf -remote "send $id reload" }}
 map xs $setsid -f live-server "$PWD" >/dev/null 2>&1
 map xx $compiler $f
 
+map gL follow-link
+map P :link
+
 map E extract
 map C compress
 
 map i     :rename
-map I     $vidir $fx
+map I     $printf '%s\n' "$fx" | vidir -
 map <a-i> ${{ set -f; sanitizefs ${fx} }}
 map <a-I> rename_random
 

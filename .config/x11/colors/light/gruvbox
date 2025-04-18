@@ -1,0 +1,35 @@
+! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! ! Gruvbox Material Light
+! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! ! hard *background: #f9f5d7
+! ! medium
+! *background: #fbf1c7
+! ! soft *background: #f2e5bc
+!
+! *foreground: #654735
+!
+! ! Black + DarkGrey
+! *color0:  #fbf1c7
+! *color8:  #fbf1c7
+! ! DarkRed + Red
+! *color1:  #c14a4a
+! *color9:  #c14a4a
+! ! DarkGreen + Green
+! *color2:  #6c782e
+! *color10: #6c782e
+! ! DarkYellow + Yellow
+! *color3:  #c35e0a
+! *color11: #c35e0a
+! ! DarkBlue + Blue
+! *color4:  #45707a
+! *color12: #45707a
+! ! DarkMagenta + Magenta
+! *color5:  #945e80
+! *color13: #945e80
+! ! DarkCyan + Cyan
+! *color6:  #4c7a5d
+! *color14: #4c7a5d
+! ! LightGrey + White
+! *color7:  #654735
+! *color15: #654735
+!
