@@ -1,5 +1,4 @@
 a,                   dmenu_hub,                     application launcher sysact reboot restart renew reload lock leave dwm
-alt-comma,           notes,                         scratchpad notepad
 alt-enter,           kitty,                         terminal emulator alternate
 alt-h,               dmenuhandler,                  link
 alt-l,               dictionary,                    define meaning thesaurus synonym
@@ -34,6 +33,8 @@ mod-down,            focus below,                   navigation directional focus
 mod-drag,            move window,                   window management
 mod-enter,           st terminal,                   terminal emulator commandline
 mod-f,               fake fullscreen,               maximize
+mod-e,               fuz-launcher,                  fuzzy search file opener finder
+mod-g,               notes,                         scratchpad notepad spnotes
 mod-h,               master size dec,               layout adjustment tiling resize
 mod-j,               focus next window,             navigation focus
 mod-k,               focus prev window,             navigation focus

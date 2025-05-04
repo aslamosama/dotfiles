@@ -1,15 +1,17 @@
-title: "Markdown Sample Document"
-thanks: "Thanks All Lorem ipsum dolor sit amet"
+title: "Markdown Template"
+thanks: "Thanks All"
 author:
   - "John Doe, Department of Pandoc, University of Example"
   - "Jane Smith, School of Markdown, Example Institute"
-date: "2025-02-21"
+date: 2025-05-01
 abstract: |
-  This paper explores the role of pandoc in writing,
-  focusing on pdf generation through LaTeX.
+  This paper explores something but this is the abstract of it
 # documentclass: article
-documentclass: scrartcl
-# documentclass: scrreprt
+# documentclass: report
+# documentclass: scrartcl
+documentclass: scrreprt
+# documentclass: amsart
+# documentclass: paper
 # fontsize: 12pt
 geometry: a4paper, margin=1in
 bibliography: references.bib
@@ -21,13 +23,17 @@ header-includes:
   - \usepackage{amsmath}
   - \usepackage{graphicx}
   - \usepackage{hyperref}
+  - \renewcommand{\rmdefault}{stix}
+  # - \renewcommand{\rmdefault}{ptm}
+  - \renewcommand{\sfdefault}{phv}
+  - \renewcommand{\ttdefault}{lmtt}
 toc: true
 lot: true
 lof: true
 numbersections: true
 pdfa: true
 lang: en
-dir: rtl
+dir: ltr
 keywords: ["Markdown", "pandoc", "LaTeX"]
 reference-section-title: "References"
 link-citations: true

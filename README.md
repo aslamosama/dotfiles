@@ -12,7 +12,7 @@ Here are some details about this setup
 - **LockScreen** = [slock](https://github.com/aslamosama/slock)
 - **Resolution** = 1366x768
 - **Cursor-theme** = [Phinger Cursors Light](https://github.com/phisch/phinger-cursors)
-- **Gtk theme** = Adwaita
+- **Gtk theme** = Qogir
 - **Shell** = [zsh](https://wiki.archlinux.org/index.php/Zsh) + [zsh4humans](https://github.com/romkatv/zsh4humans)
 - **Terminal** = [st](https://github.com/aslamosama/st)
 - **Font** = JetBrainsMono Nerd Font

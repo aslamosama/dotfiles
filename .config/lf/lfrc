@@ -3,7 +3,7 @@ set shellopts '-eu'
 set ifs "\n"
 set scrolloff 3
 set icons
-set nohidden
+set hidden
 set period 1
 set sortby ext
 set hiddenfiles ".*:*.aux:*template.out:*template.toc:*.fls:*.fdb_latexmk:*.synctex.gz:*.out:*.xdv:*.log:*.bbl:*.bcf:*.blg:*.run.xml:*.srt:compile_flags.txt:compile_commands.json"

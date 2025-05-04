@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 
-cd "$HOME/notes" || exit 1
+cd "$HOME/Notes" || exit 1
 lf

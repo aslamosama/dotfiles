@@ -1,14 +1,14 @@
 PDF=output.pdf
-MD=*.md
+MD=$(wildcard *.md)
 METADATA=metadata.yaml
-PANDOC_ENGINE=xelatex
+PANDOC_ENGINE=pdflatex
 FILTERS=--filter pandoc-crossref --citeproc
-HIGHLIGHT=tango
+HIGHLIGHT=kate
 
 all: $(PDF)
 
-$(PDF): $(wildcard $(MD)) $(METADATA)
-	pandoc $(wildcard $(MD)) -o $(PDF) --pdf-engine=$(PANDOC_ENGINE) $(FILTERS) --highlight-style=$(HIGHLIGHT) --metadata-file=$(METADATA)
+$(PDF): $(MD) $(METADATA)
+	pandoc $(MD) -o $(PDF) --pdf-engine=$(PANDOC_ENGINE) $(FILTERS) --highlight-style=$(HIGHLIGHT) --metadata-file=$(METADATA)
 
 clean:
-	rm -f $(PDF)
+	rm -f $(PDF) *.aux *.log *.out

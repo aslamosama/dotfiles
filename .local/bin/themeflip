@@ -20,6 +20,8 @@ else
   touch "$LIGHT_MODE"
 fi
 
+mkdir -p ~/.mozilla/firefox/*default-release*/chrome && touch ~/.mozilla/firefox/*default-release*/chrome/userChrome.css
+
 if [ -f "$LIGHT_MODE" ]; then
   setbg -s "$DATA_DIR/walls/light"
   sed -i "s/$DARK_XRES/$LIGHT_XRES/" "$NVIM_COLORS_FILE" "$XRESOURCES_FILE"
