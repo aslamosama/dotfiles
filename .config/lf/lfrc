@@ -16,6 +16,13 @@ set cleaner ctpvclear
 &ctpv -s $id
 &ctpvquit $id
 
+
+cmd on-cd &{{
+  lf -remote "send $id tty-write \"\033]0;(lf) ${PWD/#$HOME/\~}\007\""
+}}
+
+on-cd
+
 cmd open ${{
   case $(file --mime-type "$(readlink -f $f)" -b) in
     application/vnd.openxmlformats-officedocument.spreadsheetml.sheet) localc $fx ;;

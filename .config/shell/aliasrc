@@ -32,6 +32,7 @@ alias \
 	z="zathura" \
 	x="exit" \
 	mkd="mkdir -pv" \
+  ll="lf" \
 	ls="eza --icons --group-directories-first" \
 	lss="lsd -lt --total-size --group-directories-first" \
 	lsa="eza -a --icons --group-directories-first" \
