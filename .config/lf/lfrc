@@ -183,6 +183,28 @@ cmd link %{{
   esac
 }}
 
+cmd edit_in_gimp ${{
+  for file in $fx; do
+    ext="${file##*.}"
+    case "$ext" in
+      jpg|jpeg|png|gif|bmp|tiff|webp)
+        setsid gimp "$file" >/dev/null 2>&1 &
+        ;;
+    esac
+  done
+}}
+
+cmd copy_image_to_clipboard ${{
+  for file in $fx; do
+    ext="${file##*.}"
+    case "$ext" in
+      jpg|jpeg|png|gif|bmp|tiff|webp|avif)
+        xclip -sel clip -t image/"$ext" -i "$file"
+        ;;
+    esac
+  done
+}}
+
 map r       reload
 map gg      top
 map D       delete
@@ -203,6 +225,8 @@ map <a-b>   resize-for-wallpaper
 map b       $setbg $f
 map V       push :!nvim<space>
 map W       $setsid -f $TERMINAL >/dev/null 2>&1
+map <a-g>   edit_in_gimp
+map <a-c>   copy_image_to_clipboard
 
 map x+ ${{ chmod +x $fx; lf -remote "send $id reload" }}
 map x- ${{ chmod -x $fx; lf -remote "send $id reload" }}

@@ -5,8 +5,7 @@ dmenu_command="dmenu -i"
 menu=$(
   cat <<EOF
 󰀻  Apps            | dmenu_run -i -p "dmenu_run:"
-󰊖  Games           | game-launcher
-  Light/Dark Mode | themeflip
+  Light/Dark      | themeflip
 󰉦  Bar colors      | bar_colors_toggle
   Edit Configs    | st -e confedit
   Web Search      | dmenu_web
@@ -15,7 +14,6 @@ menu=$(
 󰋊  Mount           | mounter
 󱁌  Unmount         | unmounter
   Kill            | processkill
-  Pick Color      | xcolor-pick
   Screenshot      | maimpick
   Record          | dmenurecord
 󰄄  Camera          | mpv --untimed --no-cache --no-config --no-osc --no-input-default-bindings --profile=low-latency --input-conf=/dev/null --title=webcam \$(ls /dev/video[0,2,4,6,8] | tail -n 1)
