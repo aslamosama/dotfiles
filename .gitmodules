@@ -16,3 +16,6 @@
 [submodule ".config/nvim"]
 	path = .config/nvim
 	url = git@github.com:mintycube/nvim-config.git
+[submodule ".config/lf/lf-file-handler"]
+	path = .config/lf/lf-file-handler
+	url = git@github.com:aslamosama/lf-file-handler.git
