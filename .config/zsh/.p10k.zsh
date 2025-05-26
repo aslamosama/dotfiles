@@ -70,7 +70,7 @@
     # perlbrew                # perl version from perlbrew (https://github.com/gugod/App-perlbrew)
     # phpenv                  # php version from phpenv (https://github.com/phpenv/phpenv)
     # scalaenv                # scala version from scalaenv (https://github.com/scalaenv/scalaenv)
-    haskell_stack           # haskell version from stack (https://haskellstack.org/)
+    # haskell_stack           # haskell version from stack (https://haskellstack.org/)
     # kubecontext             # current kubernetes context (https://kubernetes.io/)
     # terraform               # terraform workspace (https://www.terraform.io)
     # terraform_version       # terraform version (https://www.terraform.io)
@@ -106,7 +106,7 @@
     # proxy                   # system-wide http/https/ftp proxy
     # battery                 # internal battery
     # wifi                    # wifi speed
-    vcs                     # git status
+    # vcs                     # git status
     # example                 # example user-defined segment (see prompt_example function below)
   )
 
@@ -195,7 +195,7 @@
   # Red prompt symbol if the last command failed.
   typeset -g POWERLEVEL9K_PROMPT_CHAR_ERROR_{VIINS,VICMD,VIVIS,VIOWR}_FOREGROUND=1
   # Default prompt symbol.
-  typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION=' '
+  typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION='➤ '
   # typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION=' '
   # typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION=' '
   # typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION=' '

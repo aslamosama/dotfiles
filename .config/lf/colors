@@ -176,6 +176,6 @@ fi      49;68      # FILE
 *.xspf  00;36
 
 # Projects
-~/projects   01;32
-~/me         01;33
+~/Projects   01;32
+~/Me         01;33
 *output.pdf  33

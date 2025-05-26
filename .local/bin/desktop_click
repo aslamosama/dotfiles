@@ -1,8 +1,0 @@
-#!/bin/sh
-
-dunstctl close-all
-if pgrep "dmenu" >/dev/null; then
-  killall dmenu
-else
-  dmenu_hub
-fi

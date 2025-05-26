@@ -13,7 +13,7 @@ bd      b       # BLK
 cd      c       # CHR
 su      u       # SETUID
 sg      g       # SETGID
-ex             # EXEC
+ex             # EXEC
 # fi             # FILE
 # fi             # FILE
 fi      󰈔       # FILE
@@ -341,20 +341,26 @@ Vagrantfile             
 # custom rules
 *.pdf           
 *.bib           󱉟
-dotfiles/       󱁿
-downloads/      󱧨
-music/          󱍙
+dotfiles/       
+downloads/      󰜮
+Downloads/      󰜮
+music/          󰝚
+Music/          󰝚
 audio/          󱍙
 docs/           󱧶
 ebooks/         󰂺
-notes/          󰲂
+notes/          󱓧
+Notes/          󱓧
 images/         󰉏
 manga/          
 movies/         󰿎
 series/         󰔂
-projects/       󱧼
+projects/       󰖷
+Projects/       󰖷
+Study/          
 videos/         󰕧
-me/             󰉌
+me/             󰀄
+Me/             󰀄
 games/          󰊖
 tutorials/      
 portfolio/      

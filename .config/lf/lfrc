@@ -6,8 +6,8 @@ set icons
 set hidden
 set period 1
 set sortby ext
-set hiddenfiles ".*:*.aux:*template.out:*template.toc:*.fls:*.fdb_latexmk:*.synctex.gz:*.out:*.xdv:*.log:*.bbl:*.bcf:*.blg:*.run.xml:*.srt:compile_flags.txt:compile_commands.json"
-set promptfmt "\033[32m  \033[35;1m%d\033[0m\033[1m%f\033[0m"
+set hiddenfiles ".*:*.aux:*template.out:*template.toc:*.fls:*.fdb_latexmk:*.synctex.gz:*.out:*.xdv:*.log:*.bbl:*.bcf:*.blg:*.run.xml:*.srt:compile_flags.txt:compile_commands.json:*.zwc"
+set promptfmt "\033[32m➤  \033[35;1m%d\033[0m\033[1m%f\033[0m"
 set autoquit true
 
 # Previewer
@@ -38,7 +38,7 @@ cmd open ${{
         lf -remote "send toggle"
         done &
       ;;
-    audio/*|video/x-ms-asf) setsid -f mpv --terminal=no --loop-file --profile=builtin-pseudo-gui $f ;;
+    audio/*|video/x-ms-asf) setsid -f mpv --terminal=no --loop-file $f ;;
     video/*) setsid -f mpv --terminal=no --loop-file $f -quiet >/dev/null 2>&1 ;;
     application/pdf|application/vnd.djvu|application/epub*) setsid -f zathura $fx >/dev/null 2>&1 ;;
     application/pgp-encrypted) $EDITOR $fx ;;
@@ -227,6 +227,7 @@ map V       push :!nvim<space>
 map W       $setsid -f $TERMINAL >/dev/null 2>&1
 map <a-g>   edit_in_gimp
 map <a-c>   copy_image_to_clipboard
+map <a-m>   $magickmenu "$fx"
 
 map x+ ${{ chmod +x $fx; lf -remote "send $id reload" }}
 map x- ${{ chmod -x $fx; lf -remote "send $id reload" }}

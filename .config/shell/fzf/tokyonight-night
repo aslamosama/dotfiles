@@ -3,7 +3,9 @@ export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
   --info=inline-right \
   --ansi \
   --layout=reverse \
-  --border=block
+  --preview-window "border-left" \
+  --border=block \
+  --no-scrollbar \
   --color=bg+:#283457 \
   --color=bg:#16161e \
   --color=border:#313244 \

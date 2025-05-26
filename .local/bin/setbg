@@ -39,4 +39,5 @@ else
   [ -f "$zathuraconf.bak" ] && unlink "$zathuraconf" && mv "$zathuraconf.bak" "$zathuraconf"
 fi
 
+# xwallpaper --tile "$bgloc"
 xwallpaper --zoom "$bgloc"

@@ -1,6 +1,6 @@
 ! vim: filetype=xdefaults
 
-#include "./colors/dark/suckless"
+#include "./colors/dark/tokyonight"
 
 Xcursor.theme: phinger-cursors-light
 Xcursor.size: 24
