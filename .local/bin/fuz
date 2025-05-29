@@ -18,10 +18,10 @@ HEADER="${h_padding}\
   [1;34m 4[1;90m:[0mVideos${h_gap}\
   [1;34m f[1;90m:[0mlf"
 
-OPENER="fuz-opener"
+OPENER="smartopen"
 PREVIEWER="fuz-preview"
 
-cat $CACHE_DIR/all | fzf --ansi --prompt "   All  " \
+cat $CACHE_DIR/all | fzf --multi --ansi --prompt "   All  " \
   --bind "alt-1:transform:(
           ([[ \$FZF_PROMPT =~ All ]] && echo 'change-prompt(   Folders  )+reload(cat $CACHE_DIR/folders)') ||
           ([[ \$FZF_PROMPT =~ Folders ]] && echo 'change-prompt(   Git  )+reload(cat $CACHE_DIR/git)') ||

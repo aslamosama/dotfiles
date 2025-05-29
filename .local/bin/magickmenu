@@ -266,7 +266,7 @@ for file in "$@"; do
     fi
     deinterlace_png "$file" "$dir/${name}_deinterlaced.png"
     ;;
-  *"Resize to Screen"*) resize_to_screen_if_matching_aspect "$file" "$dir/${name}_resized.png" ;;
+  *"Resize to Screen"*) resize_to_screen_if_matching_aspect "$file" "$dir/resized_${name}" ;;
   esac
 done
 

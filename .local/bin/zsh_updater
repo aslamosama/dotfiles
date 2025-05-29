@@ -10,10 +10,9 @@ CHECK="${GREEN}✔${RESET}"
 CROSS="${RED}✘${RESET}"
 ARROW="${BLUE}➤${RESET}"
 
-# Log file
-LOG_FILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh_updater.log"
-mkdir -p "$(dirname "$LOG_FILE")"
-: > "$LOG_FILE"  # Clear old log
+# Plugin directory
+ZSH_PLUGIN_DIR="${ZSH_PLUGIN_DIR:-$HOME/.config/zsh/plugins}"
+mkdir -p "$ZSH_PLUGIN_DIR"
 
 # Git-based plugins
 GIT_PLUGINS=(
@@ -29,9 +28,46 @@ CURL_PLUGINS=(
   "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/sudo/sudo.plugin.zsh"
 )
 
-# Plugin directory
-ZSH_PLUGIN_DIR="${ZSH_PLUGIN_DIR:-$HOME/.config/zsh/plugins}"
-mkdir -p "$ZSH_PLUGIN_DIR"
+# Defaults
+SHOW_HELP=0
+DO_SYNC=1
+DO_COMPILE=1
+
+# Parse args
+for arg in "$@"; do
+  case "$arg" in
+    -h|--help)
+      SHOW_HELP=1
+      ;;
+    -s|--sync-only)
+      DO_COMPILE=0
+      ;;
+    -c|--compile-only)
+      DO_SYNC=0
+      ;;
+    *)
+      echo "Unknown option: $arg" >&2
+      SHOW_HELP=1
+      ;;
+  esac
+done
+
+if (( SHOW_HELP )); then
+  cat <<EOF
+Usage: ${0##*/} [options]
+
+Options:
+  -h, --help           Show this help message and exit
+  -s, --sync-only      Sync plugins only (no compilation)
+  -c, --compile-only   Compile plugins only (no syncing)
+EOF
+  exit 0
+fi
+
+# Log file
+LOG_FILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh_updater.log"
+mkdir -p "$(dirname "$LOG_FILE")"
+: > "$LOG_FILE"  # Clear old log
 
 # Clone or update git plugins
 function handle_git_plugins() {
@@ -102,7 +138,8 @@ function discover_zsh_files() {
   find "$ZSH_PLUGIN_DIR" \
     -type f \( -name "*.zsh" -o -name "*.plugin.zsh" \) \
     -not -path "$ZSH_PLUGIN_DIR/powerlevel10k/*" \
-    -not -path "*/test/*"
+    -not -path "*/test/*" \
+    -not -path "*/Test/*"
 }
 
 # Compile powerlevel10k
@@ -116,14 +153,17 @@ function compile_powerlevel10k() {
 }
 
 # Run everything
+if (( DO_SYNC )); then
+  print -P "\n${ARROW} %F{yellow}Syncing Zsh Plugins ...%f"
+  handle_git_plugins
+  handle_curl_plugins
+fi
 
-print -P "\n${ARROW} %F{yellow}Syncing Zsh Plugins ...%f"
-handle_git_plugins
-handle_curl_plugins
-
-print -P "\n${ARROW} %F{yellow}Compiling Zsh Plugin Files ...%f"
-zcompile-many $(discover_zsh_files)
-compile_powerlevel10k
+if (( DO_COMPILE )); then
+  print -P "\n${ARROW} %F{yellow}Compiling Zsh Plugin Files ...%f"
+  zcompile-many $(discover_zsh_files)
+  compile_powerlevel10k
+fi
 
 print -P "\n${ARROW} %F{yellow}Log saved to:%f $LOG_FILE"
 # print -P "${BLUE}Log saved to:${RESET} $LOG_FILE"

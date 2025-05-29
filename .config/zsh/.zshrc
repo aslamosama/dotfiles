@@ -2,8 +2,8 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-unsetopt PROMPT_SP
-setopt extended_history inc_append_history share_history hist_ignore_space hist_verify hist_ignore_dups hist_find_no_dups hist_save_no_dups
+unsetopt PROMPT_SP BEEP
+setopt extended_history inc_append_history share_history hist_ignore_space hist_verify hist_ignore_dups hist_find_no_dups hist_save_no_dups hist_reduce_blanks
 setopt glob_dots autocd always_to_end interactive_comments extended_glob multios
 
 HISTSIZE=10000000
@@ -11,9 +11,10 @@ SAVEHIST=10000000
 HISTFILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/history"
 
 autoload -Uz compinit && compinit
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh/zcompcache"
+zle_highlight=('paste:none')
 
 function _zcompile_many() {
   for f in "$@"; do
@@ -32,7 +33,6 @@ source ~/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source ~/.config/zsh/plugins/find-the-command/usr/share/doc/find-the-command/ftc.zsh
 source ~/.config/zsh/plugins/sudo/sudo.plugin.zsh
 source ~/.config/shell/aliasrc
-
 if [[ -t 1 && "$(tty)" == /dev/tty([0-9]) && -z $DISPLAY && -z $WAYLAND_DISPLAY ]]; then
   source ~/.config/zsh/.p10k-ascii-8color.zsh
 else
