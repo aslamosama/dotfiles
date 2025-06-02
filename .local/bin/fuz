@@ -4,7 +4,7 @@
 CACHE_DIR="/tmp/fuz_cache"
 # [ -f "$HOME/.cache/light_mode" ] && fzf_theme="light" || fzf_theme="dark"
 
-[ -f "$HOME/.cache/light_mode" ] && source ~/.config/shell/fzf/tokyonight-day || source ~/.config/shell/fzf/tokyonight-night
+source "$HOME/.config/shell/fzf"
 
 h_padding=$(printf '%*s' 6 ' ')
 h_gap=$(printf '%*s' 4 ' ')

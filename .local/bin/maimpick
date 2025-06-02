@@ -81,8 +81,10 @@ case "$choice" in
 "$ICON_COLOR")
   color=$(gpick --no-newline -pso)
   [ -f "$sound" ] && paplay "$sound" &
+  tmp="/tmp/xcolor_${color}.png"
+  magick -size 24x24 xc:"$color" "$tmp"
   printf %s "$color" | xclip -selection clipboard
-  notify-send -a "Color Picker" "$color"
-  echo "$(date '+%Y-%m-%d %H:%M:%S') [color] $color" >>"$log_file"
+  dunstify -i "$tmp" -a "Color Picker" "$color"
+  echo "$(date '+%Y-%m-%d %H:%M:%S') [color] $color" >> "$log_file"
   ;;
 esac

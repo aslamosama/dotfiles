@@ -1,5 +1,5 @@
 # Extend PATH.
-export PATH="$PATH:${$(find ~/.local/bin -type d -printf %p:)%%:}"
+export PATH="$PATH:${$(find -L ~/.local/bin -type d -printf %p:)%%:}"
 export PATH=$PATH:~/.local/share/npm/bin
 export PATH=$PATH:/bin/vendor_perl
 

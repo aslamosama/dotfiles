@@ -6,13 +6,12 @@ menu=$(
   cat <<EOF
 󰀻  Apps            | dmenu_run -i -p "dmenu_run:"
   Web Search      | dmenu_web
-  Edit Configs    | st -e confedit
-  Light/Dark      | themeflip
+  Themes          | themeflip
+󰉦  Bar colors      | bar_colors_toggle
 󰌹  Handler         | dmenuhandler
   Screenshot      | maimpick
   Record          | dmenurecord
 󰌌  Keybinds        | keybinds
-󰉦  Bar colors      | bar_colors_toggle
 󰋊  Mount           | mounter
 󱁌  Unmount         | unmounter
 󰄄  Camera          | bash -c 'mpv --untimed --no-cache --no-config --no-osc --no-input-default-bindings --profile=low-latency --input-conf=/dev/null --title=webcam $(ls /dev/video[0,2,4,6,8] | tail -n 1)'

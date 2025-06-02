@@ -11,11 +11,9 @@
 ~/.config/zsh
 ~/.local/bin
 ~/.local/share
-~/.local/share
 ~/.local/share/fonts
 ~/.local/share/nvim
 ~/.local/share/script-data/
-~/.local/share/script-data/theme_switcher/walls
 ~/.local/src
 ~/.local/src/voidrice
 ~/Downloads

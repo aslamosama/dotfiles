@@ -1,0 +1,10 @@
+export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
+  --highlight-line \
+  --info=inline-right \
+  --ansi \
+  --layout=reverse \
+  --preview-window "border-left" \
+  --border=block \
+  --no-scrollbar \
+  --color=bg+:#1f1f1f,bg:#161616,spinner:#78a9ff,hl:#37474f,fg:#dde1e6,header:#37474f,info:#3ddbd9,pointer:#ee5396,marker:#ee5396,fg+:#dde1e6,prompt:#ee5396,hl+:#ee5396,border:#1f1f1f
+"

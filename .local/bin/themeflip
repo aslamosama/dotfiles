@@ -1,50 +1,51 @@
 #!/usr/bin/env bash
 
-DARK_XRES="dark"
-LIGHT_XRES="light"
-DARK_THEME="tokyonight-night"
-LIGHT_THEME="tokyonight-day"
-DARK_THEME_GTK="Qogir-Dark"
-LIGHT_THEME_GTK="Qogir-Light"
+THEME_DIR="$HOME/.config/x11/themeconf"
+themes=($(ls -1 "$THEME_DIR"))
 
-LIGHT_MODE="$HOME/.cache/light_mode"
-DATA_DIR="$HOME/.local/share/script-data/theme_switcher"
-XRESOURCES_FILE="$HOME/.config/x11/xresources"
-NVIM_COLORS_FILE="$HOME/.config/nvim/lua/plugins/ui/tokyonight.lua"
-GTK2_FILE="$HOME/dotfiles/.config/gtk-2.0/gtkrc-2.0"
-GTK3_FILE="$HOME/dotfiles/.config/gtk-3.0/settings.ini"
+theme=$(printf "%s\n" "${themes[@]}" | dmenu -i -p "Select theme:")
+[ -z "$theme" ] && exit 1
 
-if [ -f "$LIGHT_MODE" ]; then
-  rm "$LIGHT_MODE"
-else
-  touch "$LIGHT_MODE"
+variant=$(printf "dark\nlight" | dmenu -i -p "Select variant:")
+[ -z "$variant" ] && exit 1
+
+THEME_PATH="$THEME_DIR/$theme/$variant"
+
+[ ! -d "$THEME_PATH" ] && {
+  echo "Invalid theme path: $THEME_PATH"
+  exit 1
+}
+
+cp "$THEME_PATH"/xresources "$HOME/.config/x11/xresources"
+xrdb "$HOME/.config/x11/xresources"
+
+mkdir -p "$HOME/.config/gtk-2.0"
+cp "$THEME_PATH/gtkrc-2.0" "$HOME/.config/gtk-2.0/gtkrc-2.0"
+
+mkdir -p "$HOME/.config/gtk-3.0"
+cp "$THEME_PATH/settings.ini" "$HOME/.config/gtk-3.0/settings.ini"
+
+for profile in "$HOME/.mozilla/firefox/"*.default*; do
+  chrome_dir="$profile/chrome"
+  mkdir -p "$chrome_dir"
+  cp "$THEME_PATH/userChrome.css" "$chrome_dir/userChrome.css"
+done
+
+cp "$THEME_PATH/dunstrc" "$HOME/.config/dunst/dunstrc"
+killall dunst && dunst & >/dev/null 2>&1
+
+cp "$THEME_PATH/fzf" "$HOME/.config/shell/fzf"
+
+setbg -s "$THEME_PATH/wallpapers"
+
+# Neovim Lua theme file
+NVIM_THEME_DEST="$HOME/.config/nvim/lua/plugins/ui/theme.lua"
+NVIM_THEME_SOURCE="$THEME_PATH/nvim.lua"
+
+if [ -f "$NVIM_THEME_SOURCE" ]; then
+  cp "$NVIM_THEME_SOURCE" "$NVIM_THEME_DEST"
 fi
 
-mkdir -p ~/.mozilla/firefox/*default-release*/chrome && touch ~/.mozilla/firefox/*default-release*/chrome/userChrome.css
-
-if [ -f "$LIGHT_MODE" ]; then
-  setbg -s "$DATA_DIR/walls/light"
-  sed -i "s/$DARK_XRES/$LIGHT_XRES/" "$NVIM_COLORS_FILE" "$XRESOURCES_FILE"
-  sed -i "s/$DARK_THEME_GTK/$LIGHT_THEME_GTK/g" "$GTK2_FILE" "$GTK3_FILE"
-  sed -i 's/^Xcursor\.theme:.*/Xcursor.theme: phinger-cursors-dark/' "$XRESOURCES_FILE"
-  cat "$DATA_DIR/dunst/$LIGHT_THEME" >"$HOME/.config/dunst/dunstrc"
-  find "$HOME/.mozilla/firefox/" -type f -name "userChrome.css" | while read -r css_file; do
-    cp "$DATA_DIR/firefox/$LIGHT_THEME.css" "$css_file"
-  done
-else
-  setbg -s "$DATA_DIR/walls/dark"
-  sed -i "s/$LIGHT_XRES/$DARK_XRES/" "$NVIM_COLORS_FILE" "$XRESOURCES_FILE"
-  sed -i "s/$LIGHT_THEME_GTK/$DARK_THEME_GTK/g" "$GTK2_FILE" "$GTK3_FILE"
-  sed -i 's/^Xcursor\.theme:.*/Xcursor.theme: phinger-cursors-light/' "$XRESOURCES_FILE"
-  cat "$DATA_DIR/dunst/$DARK_THEME" >"$HOME/.config/dunst/dunstrc"
-  find "$HOME/.mozilla/firefox/" -type f -name "userChrome.css" | while read -r css_file; do
-    cp "$DATA_DIR/firefox/$DARK_THEME.css" "$css_file"
-  done
-fi
-
-killall dunst
-setsid -f dunst >/dev/null 2>&1
-xrdb "$XRESOURCES_FILE"
 killall -USR1 st
 renew-dwm
 kitty_colors
