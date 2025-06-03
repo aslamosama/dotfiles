@@ -19,3 +19,6 @@
 [submodule "lf-file-handler"]
 	path = lf/.config/lf/lf-file-handler
 	url = git@github.com:aslamosama/lf-file-handler.git
+[submodule "wallpapers"]
+	path = wallpapers/.config/x11/themeconf
+	url = git@github.com:aslamosama/wallpapers.git
