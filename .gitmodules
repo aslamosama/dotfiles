@@ -1,0 +1,21 @@
+[submodule "dwmblocks"]
+	path = dwmblocks/.config/suckless/dwmblocks
+	url = git@github.com:aslamosama/dwmblocks.git
+[submodule "dwm"]
+	path = dwm/.config/suckless/dwm
+	url = git@github.com:aslamosama/dwm.git
+[submodule "dmenu"]
+	path = dmenu/.config/suckless/dmenu
+	url = git@github.com:aslamosama/dmenu.git
+[submodule "st"]
+	path = st/.config/suckless/st
+	url = git@github.com:aslamosama/st.git
+[submodule "slock"]
+	path = slock/.config/suckless/slock
+	url = git@github.com:aslamosama/slock.git
+[submodule "nvim"]
+	path = nvim/.config/nvim
+	url = git@github.com:aslamosama/nvim-config.git
+[submodule "lf-file-handler"]
+	path = lf/.config/lf/lf-file-handler
+	url = git@github.com:aslamosama/lf-file-handler.git
