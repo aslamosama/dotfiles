@@ -1,6 +1,6 @@
 <h1 align="center"> DotFiles</h1>
 
-<img src="./images/screenshot-light.png" alt="screenshot-light-mode" align="right" width="400px">
+<img src="./screenshot.png" alt="screenshot" align="right" width="400px">
 
 Here are some details about this setup
 

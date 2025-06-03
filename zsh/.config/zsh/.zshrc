@@ -24,7 +24,7 @@ function _zcompile_many() {
     [[ -f "$f" && (! -f "$zwc" || "$f" -nt "$zwc") ]] && zcompile -R -- "$zwc" "$f"
   done
 }
-_zcompile_many ~/.config/shell/{aliasrc,fzf} ~/.config/zsh/.{p10k{,-ascii-8color}.zsh,zcompdump}
+_zcompile_many ~/.config/shell/{aliasrc,fzf} ~/.config/zsh/.{p10k{,-tty}.zsh,zcompdump}
 unfunction _zcompile_many
 
 ZSH_AUTOSUGGEST_MANUAL_REBIND=1
