@@ -27,13 +27,9 @@ shopt -s cdspell 2>/dev/null  # Correct spelling errors in arguments supplied to
 shopt -s expand_aliases       # expand aliases
 shopt -s checkwinsize         # checks term size when bash regains control
 
-[ -f "$HOME/.config/shell/shortcutrc" ] && source "$HOME/.config/shell/shortcutrc" # shortcuts
 [ -f "$HOME/.config/shell/aliasrc" ] && source "$HOME/.config/shell/aliasrc"       # aliases
 
 PS1='\[\e[34;3m\]\w \[\e[0;32m\] \[\e[0m\]' # prompt with dir in italic
-
-# [ -f "$HOME/.cache/light_mode" ] && fzf_theme="light" || fzf_theme="dark"
-# export FZF_DEFAULT_OPTS="--color=$fzf_theme --height=50% --reverse --prompt='  ' --pointer=' '"
 
 source ~/.config/shell/fzf
 

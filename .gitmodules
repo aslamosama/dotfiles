@@ -22,3 +22,6 @@
 [submodule "wallpapers"]
 	path = wallpapers/.config/x11/themeconf
 	url = git@github.com:aslamosama/wallpapers.git
+[submodule "archinstall"]
+	path = archinstall
+	url = git@github.com:aslamosama/arch-install.git

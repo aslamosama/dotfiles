@@ -3,7 +3,7 @@
 cd ~/dotfiles || exit 1
 
 # Exclude certain directories from stowing
-EXCLUDES=(".git")
+EXCLUDES=(".git archinstall")
 
 # Build list of stowable packages
 PACKAGES=()

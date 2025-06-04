@@ -14,8 +14,6 @@ fpath=(~/.config/zsh/completions $fpath)
 
 autoload -Uz compinit && compinit
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
-zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh/zcompcache"
 zle_highlight=('paste:none')
 
 function _zcompile_many() {
@@ -24,7 +22,7 @@ function _zcompile_many() {
     [[ -f "$f" && (! -f "$zwc" || "$f" -nt "$zwc") ]] && zcompile -R -- "$zwc" "$f"
   done
 }
-_zcompile_many ~/.config/shell/{aliasrc,fzf} ~/.config/zsh/.{p10k{,-tty}.zsh,zcompdump}
+_zcompile_many ~/.config/{shell/{aliasrc,fzf},zsh/.{p10k{,-tty}.zsh,zcompdump}}
 unfunction _zcompile_many
 
 ZSH_AUTOSUGGEST_MANUAL_REBIND=1
