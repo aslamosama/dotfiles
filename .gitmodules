@@ -25,3 +25,9 @@
 [submodule "archinstall"]
 	path = archinstall
 	url = git@github.com:aslamosama/arch-install.git
+[submodule "fetch"]
+	path = fetch/.config/fetch
+	url = git@github.com:aslamosama/fetch.git
+[submodule "fast-files"]
+	path = scripts/.local/src/fast-files
+	url = git@github.com:aslamosama/fast-files.git
