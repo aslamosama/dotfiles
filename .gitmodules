@@ -16,18 +16,6 @@
 [submodule "nvim"]
 	path = nvim/.config/nvim
 	url = git@github.com:aslamosama/nvim-config.git
-[submodule "lf-file-handler"]
-	path = lf/.config/lf/lf-file-handler
-	url = git@github.com:aslamosama/lf-file-handler.git
 [submodule "wallpapers"]
 	path = wallpapers/.config/x11/themeconf
 	url = git@github.com:aslamosama/wallpapers.git
-[submodule "archinstall"]
-	path = archinstall
-	url = git@github.com:aslamosama/arch-install.git
-[submodule "fetch"]
-	path = fetch/.config/fetch
-	url = git@github.com:aslamosama/fetch.git
-[submodule "fast-files"]
-	path = scripts/.local/src/fast-files
-	url = git@github.com:aslamosama/fast-files.git
