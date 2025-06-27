@@ -10,6 +10,7 @@ HISTSIZE=10000000
 SAVEHIST=10000000
 HISTFILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/history"
 
+fpath=(~/.config/zsh/plugins/zsh-completions/src $fpath)
 fpath=(~/.config/zsh/completions $fpath)
 
 autoload -Uz compinit && compinit

@@ -27,7 +27,7 @@ shopt -s cdspell 2>/dev/null  # Correct spelling errors in arguments supplied to
 shopt -s expand_aliases       # expand aliases
 shopt -s checkwinsize         # checks term size when bash regains control
 
-[ -f "$HOME/.config/shell/aliasrc" ] && source "$HOME/.config/shell/aliasrc"       # aliases
+[ -f "$HOME/.config/shell/aliasrc" ] && source "$HOME/.config/shell/aliasrc" # aliases
 
 PS1='\[\e[34;3m\]\w \[\e[0;32m\] \[\e[0m\]' # prompt with dir in italic
 

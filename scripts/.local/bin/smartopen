@@ -43,7 +43,7 @@ for FILE in "${FILES[@]}"; do
         mimeopen "$FILE"
       fi
       ;;
-    *) mimeopen "$FILE" ;;
+    *) mimeopen "$FILE" >/dev/null 2>&1 ;;
   esac
 done
 

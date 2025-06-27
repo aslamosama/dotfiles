@@ -15,7 +15,7 @@ fi
 makefile_handler() {
   local dir="${1:-$PWD}"
   local use_bear=false
-  if [[ "$dir" == "$HOME/projects/cpp/"* ]]; then
+  if [[ "$dir" == "$HOME/Projects/cpp/"* ]]; then
     use_bear=true
   fi
   pushd "$dir" >/dev/null || exit 1

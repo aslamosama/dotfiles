@@ -336,6 +336,7 @@ Vagrantfile             
 *.oga   󰝚
 *.opus  󰝚
 *.spx   󰝚
+*.wma   󰝚
 *.xspf  󰝚
 
 # custom rules

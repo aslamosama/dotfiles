@@ -19,6 +19,7 @@ GIT_PLUGINS=(
   "zdharma-continuum/fast-syntax-highlighting"
   "romkatv/powerlevel10k"
   "zsh-users/zsh-autosuggestions"
+  "zsh-users/zsh-completions"
   "pkasemir/find-the-command"
   "aslingguang/fzf-tab-source"
 )
