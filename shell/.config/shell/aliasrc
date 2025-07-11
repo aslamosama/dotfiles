@@ -41,6 +41,7 @@ alias \
   yt="yt-dlp --embed-metadata -i" \
   yta="yt -x -f bestaudio/best" \
   ffmpeg="ffmpeg -hide_banner" \
-  paru="yay"
+  dysk="dysk -u binary" \
+  paru="yay" \
 # weath="curl wttr.in | head -n -1 | cat"
 # weath2="curl v2.wttr.in | head -n -1 | cat"
