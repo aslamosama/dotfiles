@@ -1,78 +1,42 @@
 #!/usr/bin/env bash
 
-FILES=("$@")
+openee="$1"
 
-[[ ${#FILES[@]} -eq 0 ]] && echo "No file(s) provided." && exit 1
-
-NO_LF=false
-for i in "${!FILES[@]}"; do
-  if [[ "${FILES[i]}" == "--no-lf" ]]; then
-    NO_LF=true
-    unset 'FILES[i]'
-  fi
-done
-
-mapfile -t FILES < <(realpath -e -- "${FILES[@]}")
-
-declare -a gimp_files nvim_files zathura_files image_files video_files audio_files lf_paths
-
-for FILE in "${FILES[@]}"; do
-  ext="${FILE##*.}"
-  ext="${ext,,}"
-  case $(file --mime-type "$(readlink -f $FILE)" -b) in
-    image/x-xcf) gimp_files+=("$FILE") ;;
-    image/svg+xml) image_files+=("$FILE") ;;
-    image/*) image_files+=("$FILE") ;;
-    text/* | application/json | inode/x-empty | application/x-subrip | application/javascript) nvim_files+=("$FILE") ;;
-    application/pdf | application/postscript | application/epub* | image/vnd.djvu) zathura_files+=("$FILE") ;;
-    audio/* | video/x-ms-asf) audio_files+=("$FILE") ;;
-    video/*) video_files+=("$FILE") ;;
-    application/pgp-encrypted) nvim_files+=("$FILE") ;;
-    application/vnd.openxmlformats-officedocument.* | application/vnd.oasis.opendocument.* | application/vnd.ms-powerpoint | application/vnd.ms-excel | application/msword | application/octet-stream)
-      case "$ext" in
-        doc | docx | xls | xlsx | odt | ods | odp | ppt | pptx) office_files+=("$FILE") ;;
-        ts) video_files+=("$FILE") ;;
-        *) zathura_files+=("$FILE") ;;
-      esac
-      ;;
-    inode/directory | application/zip | application/x-tar | application/x-rar | application/x-7z-compressed | application/x-xz | application/gzip | application/x-bzip2 | application/x-compress | application/x-iso9660-image | application/vnd.android.package-archive | font/*) $NO_LF || lf_paths+=("$FILE") ;;
-    application/x-executable)
-      if [[ "$ext" == "appimage" ]]; then
-        $NO_LF || lf_paths+=("$FILE")
-      else
-        mimeopen "$FILE"
-      fi
-      ;;
-    *) mimeopen "$FILE" >/dev/null 2>&1 ;;
-  esac
-done
-
-[[ ${#gimp_files[@]} -gt 0 ]] && setsid gimp "${gimp_files[@]}" >/dev/null 2>&1 &
-[[ ${#nvim_files[@]} -gt 0 ]] && nvim "${nvim_files[@]}"
-[[ ${#zathura_files[@]} -gt 0 ]] && setsid zathura "${zathura_files[@]}" >/dev/null 2>&1 &
-[[ ${#audio_files[@]} -gt 0 ]] && setsid mpv --loop-file --profile=builtin-pseudo-gui "${audio_files[@]}" &
-[[ ${#video_files[@]} -gt 0 ]] && setsid mpv --loop-file -quiet "${video_files[@]}" >/dev/null 2>&1 &
-if ! $NO_LF && [[ ${#lf_paths[@]} -gt 0 ]]; then
-  for f in "${lf_paths[@]}"; do
-    lf "$f" >/dev/null 2>&1
-  done
-fi
-if [[ ${#image_files[@]} -eq 1 ]]; then
-  FILE="${image_files[0]}"
+case $(file --mime-type "$(readlink -f "$openee")" -b) in
+image/vnd.djvu | application/pdf | application/postscript | application/epub*) zathura "$openee" >/dev/null 2>&1 ;;
+text/html) nvim "$openee" ;;
+text/* | application/json | inode/x-empty | application/x-subrip | application/javascript) nvim "$openee" ;;
+image/x-xcf) gimp "$openee" >/dev/null 2>&1 ;;
+image/svg+xml) display -- "$openee" ;;
+image/*)
   shopt -s nullglob
-  dir="$(dirname "$FILE")"
-  selected_file="$FILE"
+  dir="$(dirname "$openee")"
+  selected_file="$openee"
   images=()
-  for file in "$dir"/*.{jpg,jpeg,png,webp,bmp,tiff,tif,raw,ico,exif,heic,heif,gif,avif,jxl,svg,JPG,JPEG,PNG,SVG}; do
+  for file in "$dir"/*.{jpg,jpeg,png,webp,bmp,tiff,tif,raw,ico,exif,heic,heif,gif,avif,jxl,JPG,PNG}; do
     [[ -f "$file" ]] && images+=("$file")
   done
-  mapfile -t sorted_images < <(printf "%s\n" "${images[@]}" | sort -fV)
+  sorted_images=()
+  while IFS= read -r line; do
+    sorted_images+=("$line")
+  done < <(printf "%s\n" "${images[@]}" | sort -fV)
   for ((i = 0; i < ${#sorted_images[@]}; i++)); do
-    if [[ "${sorted_images[i]}" == "$selected_file" ]]; then
-      setsid nsxiv -aon "$((i + 1))" "${sorted_images[@]}" &
+    [[ "${sorted_images[i]}" = "$selected_file" ]] && {
+      setsid nsxiv -aon "$((i + 1))" "${sorted_images[@]}"
       break
-    fi
+    }
   done
-elif [[ ${#image_files[@]} -gt 0 ]]; then
-  setsid nsxiv -ao "${image_files[@]}" >/dev/null 2>&1 &
-fi
+  ;;
+audio/* | video/x-ms-asf) mpv --loop-file --profile=builtin-pseudo-gui "$openee" ;;
+video/*) mpv --loop-file "$openee" -quiet >/dev/null 2>&1 ;;
+application/pgp-encrypted) nvim "$openee" ;;
+application/vnd.openxmlformats-officedocument.wordprocessingml.document | application/vnd.oasis.opendocument.text | application/vnd.openxmlformats-officedocument.spreadsheetml.sheet | application/vnd.oasis.opendocument.spreadsheet | application/vnd.oasis.opendocument.spreadsheet-template | application/vnd.openxmlformats-officedocument.presentationml.presentation | application/vnd.oasis.opendocument.presentation-template | application/vnd.oasis.opendocument.presentation | application/vnd.ms-powerpoint | application/vnd.oasis.opendocument.graphics | application/vnd.oasis.opendocument.graphics-template | application/vnd.oasis.opendocument.formula | application/vnd.oasis.opendocument.database) libreoffice "$openee" >/dev/null 2>&1 ;;
+application/octet-stream)
+  case ${openee##*.} in
+  doc | docx | xls | xlsx | odt | ppt | pptx) libreoffice "$openee" >/dev/null 2>&1 ;;
+  ts) mpv "$openee" -quiet >/dev/null 2>&1 ;;
+  *) zathura "$openee" >/dev/null 2>&1 ;;
+  esac
+  ;;
+*) lf -command "set hidden" "$openee" ;;
+esac

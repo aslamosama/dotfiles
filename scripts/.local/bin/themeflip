@@ -28,7 +28,7 @@ cp "$THEME_PATH/settings.ini" "$HOME/.config/gtk-3.0/settings.ini"
 for profile in "$HOME/.mozilla/firefox/"*.default*; do
   chrome_dir="$profile/chrome"
   mkdir -p "$chrome_dir"
-  cp "$THEME_PATH/userChrome.css" "$chrome_dir/userChrome.css"
+  cp -L "$THEME_PATH/userChrome.css" "$chrome_dir/userChrome.css"
 done
 
 cp "$THEME_PATH/dunstrc" "$HOME/.config/dunst/dunstrc"
