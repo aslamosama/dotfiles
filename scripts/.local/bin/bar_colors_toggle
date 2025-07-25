@@ -1,0 +1,4 @@
+#!/bin/bash
+
+FILE="$HOME/.cache/bar_color"
+[ -e "$FILE" ] && { rm "$FILE"; renew-dwm; } || { touch "$FILE"; renew-dwm; }

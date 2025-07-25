@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+THEME_DIR="$HOME/.config/x11/themeconf"
+themes=($(ls -1 "$THEME_DIR"))
+
+theme=$(printf "%s\n" "${themes[@]}" | dmenu -i -p "Select theme:")
+[ -z "$theme" ] && exit 1
+
+variant=$(printf "dark\nlight" | dmenu -i -p "Select variant:")
+[ -z "$variant" ] && exit 1
+
+THEME_PATH="$THEME_DIR/$theme/$variant"
+
+[ ! -d "$THEME_PATH" ] && {
+  echo "Invalid theme path: $THEME_PATH"
+  exit 1
+}
+
+cp "$THEME_PATH"/xresources "$HOME/.config/x11/xresources"
+xrdb "$HOME/.config/x11/xresources"
+
+mkdir -p "$HOME/.config/gtk-2.0"
+cp "$THEME_PATH/gtkrc-2.0" "$HOME/.config/gtk-2.0/gtkrc-2.0"
+
+mkdir -p "$HOME/.config/gtk-3.0"
+cp "$THEME_PATH/settings.ini" "$HOME/.config/gtk-3.0/settings.ini"
+
+for profile in "$HOME/.mozilla/firefox/"*.default*; do
+  chrome_dir="$profile/chrome"
+  mkdir -p "$chrome_dir"
+  cp -L "$THEME_PATH/userChrome.css" "$chrome_dir/userChrome.css"
+done
+
+cp "$THEME_PATH/dunstrc" "$HOME/.config/dunst/dunstrc"
+killall dunst && dunst & >/dev/null 2>&1
+
+cp "$THEME_PATH/fzf" "$HOME/.config/shell/fzf"
+
+setbg -s "$THEME_PATH/wallpapers"
+
+# Neovim Lua theme file
+NVIM_THEME_DEST="$HOME/.config/nvim/lua/plugins/ui/theme.lua"
+NVIM_THEME_SOURCE="$THEME_PATH/nvim.lua"
+
+if [ -f "$NVIM_THEME_SOURCE" ]; then
+  cp "$NVIM_THEME_SOURCE" "$NVIM_THEME_DEST"
+fi
+
+killall -USR1 st
+renew-dwm
+kitty_colors

@@ -1,0 +1,36 @@
+[submodule "dwmblocks/.config/suckless/dwmblocks"]
+	path = dwmblocks/.config/suckless/dwmblocks
+	url = git@github.com:aslamosama/dwmblocks.git
+[submodule "dwm/.config/suckless/dwm"]
+	path = dwm/.config/suckless/dwm
+	url = git@github.com:aslamosama/dwm.git
+[submodule "dmenu/.config/suckless/dmenu"]
+	path = dmenu/.config/suckless/dmenu
+	url = git@github.com:aslamosama/dmenu.git
+[submodule "st/.config/suckless/st"]
+	path = st/.config/suckless/st
+	url = git@github.com:aslamosama/st.git
+[submodule "slock/.config/suckless/slock"]
+	path = slock/.config/suckless/slock
+	url = git@github.com:aslamosama/slock.git
+[submodule "nvim/.config/nvim"]
+	path = nvim/.config/nvim
+	url = git@github.com:aslamosama/nvim-config.git
+[submodule "wallpapers/.config/x11/themeconf"]
+	path = wallpapers/.config/x11/themeconf
+	url = git@github.com:aslamosama/wallpapers.git
+[submodule "src/.local/src/sample-md-doc"]
+	path = src/.local/src/sample-md-doc
+	url = git@github.com:aslamosama/sample-md-doc.git
+[submodule "src/.local/src/arch-install"]
+	path = src/.local/src/arch-install
+	url = git@github.com:aslamosama/arch-install.git
+[submodule "src/.local/src/lf-file-handler"]
+	path = src/.local/src/lf-file-handler
+	url = git@github.com:aslamosama/lf-file-handler.git
+[submodule "src/.local/src/fetch"]
+	path = src/.local/src/fetch
+	url = git@github.com:aslamosama/fetch.git
+[submodule "scripts/.local/src/fast-files"]
+	path = scripts/.local/src/fast-files
+	url = git@github.com:aslamosama/fast-files.git

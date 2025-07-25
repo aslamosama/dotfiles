@@ -1,0 +1,20 @@
+! vim: filetype=xdefaults
+
+#include "./themeconf/rosepine/dark/colors"
+
+Xcursor.theme: phinger-cursors-light
+Xcursor.size: 24
+
+st.font:       JetBrains Mono:pixelsize=14
+st.borderpx:   10
+st.alpha:      1
+st.tabspaces:  2
+st.cwscale:    1.0
+st.chscale:    1.0
+
+dmenu.font:    JetBrainsMono Nerd Font:style:Medium:pixelsize=14
+
+dwm.borderpx:  1
+dwm.mfact:     0.55
+dwm.nmaster:   1
+dwm.topbar:    0

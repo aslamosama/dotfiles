@@ -1,0 +1,57 @@
+#!/bin/bash
+
+cd ~/dotfiles || exit 1
+
+# Exclude certain directories from stowing
+EXCLUDES=(".git arch-install")
+
+# Build list of stowable packages
+PACKAGES=()
+for dir in */; do
+  dir="${dir%/}"
+  if [[ -d $dir && ! " ${EXCLUDES[*]} " =~ " $dir " ]]; then
+    PACKAGES+=("$dir")
+  fi
+done
+
+fzf_preview_cmd='
+if [[ {} == "ALL" ]]; then
+  ls -1d */ | sed "s#/##"
+else
+  cd {} && eza --tree --icons --git-ignore --all --color=always
+fi
+'
+
+# Present FZF menu with preview
+CHOICE=$(
+  (
+    echo "ALL"
+    printf "%s\n" "${PACKAGES[@]}"
+  ) |
+    fzf --multi --ansi \
+      --preview="$fzf_preview_cmd" \
+      --prompt="Unstow packages: " \
+      --preview-window=right:60%:wrap:border-left \
+      --pointer=" " --ellipsis= --header-first \
+      --border=block --margin=5%,10%,5%,10% --info=inline-right \
+      --highlight-line \
+      --height=40%
+)
+
+# Abort if nothing was selected
+[[ -z "$CHOICE" ]] && {
+  echo "No selection made. Aborting."
+  exit 1
+}
+
+# Handle multi-selection
+readarray -t SELECTED <<<"$CHOICE"
+
+# Stow all or selected
+if printf "%s\n" "${SELECTED[@]}" | grep -q "^ALL$"; then
+  echo "Unstowing ALL packages..."
+  stow -D "${PACKAGES[@]}"
+else
+  echo "Unstowing selected packages: ${SELECTED[*]}"
+  stow -D "${SELECTED[@]}"
+fi

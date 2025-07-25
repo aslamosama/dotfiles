@@ -1,0 +1,39 @@
+#!/bin/sh
+
+dwmc setlayoutex 2
+
+search_dir="${1:-.}"
+preview='bat --style=header,numbers --color=always {}'
+
+fd_command="fd . \
+  --type file \
+  --hidden \
+  --follow \
+  --color always \
+  --exclude .git \
+  --exclude .github \
+  --exclude *.o \
+  --exclude *.pyc \
+  --exclude node_modules \
+  --full-path \"$search_dir\""
+
+fzf_command="fzf \
+  --border=block \
+  --ansi \
+  --height=100% \
+  --keep-right \
+  --layout=reverse \
+  --scheme=path \
+  --multi \
+  --preview=\"[[ -n {1} ]] && $preview\" \
+  --preview-window='bottom,60%,border-top' \
+  --scrollbar='▐' --info=inline-right \
+  --margin=5%,10%,5%,10%\
+  --highlight-line \
+  --prompt='  ' --pointer=' ' --ellipsis='' "
+
+eval "$fd_command" | eval "$fzf_command"
+
+dwmc setlayoutex 0
+
+exit 0

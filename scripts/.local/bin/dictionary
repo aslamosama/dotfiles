@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+
+word=$(xclip -o -selection "clipboard")
+word=$(echo "$word" | sed 's/^[ \t]*//;s/[ \t]*$//')
+
+if [ -z "$word" ]; then
+  notify-send "No query."
+  exit 1
+fi
+
+st \
+  -n "dictionary" \
+  -g 74x20+800 \
+  -f "JetBrainsMono Nerd Font:size=10" \
+  sh -c "dict -d wn \"$word\" | nvim --clean +'source ~/.local/share/script-data/init.lua' -R -"
+# sh -c "dict -d wn \"$word\" | colorit | sed -e '1,3d' -e 's/\[34;47m/[34m/g' | less -R";

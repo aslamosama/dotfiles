@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# Use neovim for vim if present.
+[ -x "$(command -v nvim)" ] && alias vim="nvim" vimdiff="nvim -d"
+
+# Use $XINITRC variable if file exists.
+[ -f "$XINITRC" ] && alias startx="startx \$XINITRC"
+
+alias svn="svn --config-dir \"$XDG_CONFIG_HOME\"/subversion"
+alias adb='HOME="$XDG_DATA_HOME"/android adb'
+
+# sudo not required for some system commands
+for command in mount umount pacman updatedb su shutdown poweroff reboot; do
+  alias $command="sudo $command"
+done
+unset command
+
+alias \
+  be="fzf-fd \$HOME/.local/bin | xargs -r nvim" \
+  ce="confedit" \
+  cg="fzf-grep \$HOME/.config" \
+  fe="fzf-fd \$(pwd) | xargs -r nvim" \
+  fgr="fzf-grep \$(pwd)" \
+  cp="cp -iv" \
+  mv="mv -iv" \
+  rm="rm -vI" \
+  ka="killall" \
+  sdn="shutdown -h now" \
+  x="exit" \
+  mkd="mkdir -pv" \
+  ll="lf" \
+  ls="eza --icons --group-directories-first" \
+  lss="lsd -lt --total-size --group-directories-first" \
+  lsa="eza -a --icons --group-directories-first" \
+  lsas="lsd -lAt --total-size --group-directories-first" \
+  lst="eza -T --icons" \
+  grep="grep --color=auto" \
+  diff="diff --color=auto" \
+  ip="ip -color=auto" \
+  cat="bat -pp" \
+  yt="yt-dlp --embed-metadata -i" \
+  yta="yt -x -f bestaudio/best" \
+  ffmpeg="ffmpeg -hide_banner" \
+  dysk="dysk -u binary" \
+  paru="yay" \
+# weath="curl wttr.in | head -n -1 | cat"
+# weath2="curl v2.wttr.in | head -n -1 | cat"

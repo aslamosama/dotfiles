@@ -1,0 +1,22 @@
+#!/bin/bash
+
+dmenu_command="dmenu -i -p 'System Actions:'"
+
+menu=$(
+  cat <<EOF
+󰧻  Kill       | processkill
+  Lock       | lock
+  Shutdown   | systemctl poweroff -i
+  Reboot     | systemctl reboot -i
+󰍃  Leave dwm  | kill -TERM \$(pidof -s dwm)
+  Renew dwm  | renew-dwm
+󰶐  Suspend    | xset dpms force suspend
+EOF
+)
+
+options=$(echo "$menu" | cut -d '|' -f1 | sed 's/[[:space:]]*$//')
+selected_option=$(echo "$options" | eval "$dmenu_command")
+if [ -n "$selected_option" ]; then
+  action=$(echo "$menu" | awk -F'|' -v option="$selected_option" '$1 ~ option {print $2}')
+  [ -n "$action" ] && eval "$action"
+fi

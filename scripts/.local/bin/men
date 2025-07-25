@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+
+# Grand Unification of Manuals
+
+man_pages() {
+  apropos . |
+    grep -v -E '^.+ \(0\)' |
+    awk '{print $2 "	" $1}' |
+    sort |
+    fzf --bind='ctrl-t:toggle-preview' \
+      --height=100% \
+      --pointer=" " \
+      --ellipsis= \
+      --border=block \
+      --margin=5%,5%,5%,5% \
+      --ansi \
+      --info=inline-right \
+      --reverse \
+      --tiebreak=begin \
+      --preview-window="70%,right,border-left" \
+      --preview="echo {1} | sed -E \"s/^\((.+)\)/\1/\" | xargs -I{S} man {S} {2} 2>/dev/null | col -bx | bat -l man -p --color always" |
+    sed -E 's/^\((.+)\)/\1/' |
+    xargs -r man
+}
+
+tldr_pages() {
+  selected=$(tldr --list |
+    fzf --bind='ctrl-t:toggle-preview' \
+      --preview "tldr {1} --color=always" \
+      --preview-window=right,70%,border-left \
+      --margin=5% \
+      --height=100% \
+      --info=inline-right)
+
+  if [ -n "$selected" ]; then
+    temp_file=$(mktemp /tmp/tldr.XXXXXX.md)
+    tldr "$selected" --raw --color=always >"$temp_file"
+    nvim -R "$temp_file"
+    rm "$temp_file"
+  fi
+}
+
+cht_pages() {
+  languages=$(curl -s https://cht.sh/:languages | awk '{print $1}')
+  topics=$(curl -s https://cht.sh/:list | awk '{print $1}')
+  options=$(printf "%s\n%s" "$languages" "$topics")
+
+  selected=$(printf '%s\n' "$options" |
+    fzf --bind='ctrl-t:toggle-preview' \
+      --preview "curl -s cht.sh/{1} | head -100 | bat -p --color always" \
+      --preview-window=right,70%,border-left \
+      --margin=5% \
+      --height=100% \
+      --info=inline-right)
+
+  if [ -n "$selected" ]; then
+    temp_file=$(mktemp /tmp/cht.XXXXXX)
+    curl -s "cht.sh/$selected" >"$temp_file"
+    nvim - -c "lua Snacks.terminal.colorize()" "$temp_file"
+    rm "$temp_file"
+  fi
+}
+
+nvim_docs() {
+  nvim "+lua require('fzf-lua').helptags()"
+}
+
+main_menu() {
+  options=("  Man Pages" "  TLDR Pages" "  cht.sh" "  Nvim Docs")
+  choice=$(printf '%s\n' "${options[@]}" | fzf --height=100% --no-info --border=block --margin=30%,35% --prompt="")
+
+  case $choice in
+  "  Man Pages") man_pages ;;
+  "  TLDR Pages") tldr_pages ;;
+  "  Nvim Docs") nvim_docs ;;
+  "  cht.sh") cht_pages ;;
+  esac
+}
+
+main_menu

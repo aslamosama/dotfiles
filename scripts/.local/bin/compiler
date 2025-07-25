@@ -1,0 +1,83 @@
+#!/usr/bin/env sh
+
+file="${1}"
+ext="${file##*.}"
+dir=$(dirname "$(realpath "${file}")")
+base="${file%.*}"
+
+cd "${dir}" || exit 1
+
+if [ "${ext}" = "h" ] &&
+  printf '%s\n' "dmenu" "dwm" "slock" "dwmblocks" "st" | grep -qx "$(basename "${dir}")"; then
+  sudo make install && killall -USR1 st && renew-dwm && notify-send '  refresh complete'
+fi
+
+makefile_handler() {
+  local dir="${1:-$PWD}"
+  local use_bear=false
+  if [[ "$dir" == "$HOME/Projects/cpp/"* ]]; then
+    use_bear=true
+  fi
+  pushd "$dir" >/dev/null || exit 1
+  if [[ -f Makefile ]]; then
+    if $use_bear; then
+      bear -- make || exit 1
+    else
+      make || exit 1
+    fi
+    exit 0
+  fi
+  popd >/dev/null
+}
+
+if [[ -f Makefile ]]; then
+  makefile_handler "$PWD"
+elif [[ -f ../Makefile ]]; then
+  makefile_handler "$(cd .. && pwd)"
+fi
+
+case "${ext}" in
+[0-9]) preconv "${file}" | refer -PS -e | groff -mandoc -T pdf >"${base}.pdf" ;;
+mom | ms) preconv "${file}" | refer -PS -e | groff -T pdf -m"${ext}" >"${base}.pdf" ;;
+c) gcc "${file}" -o "${dir}/$(basename "${base}")" && "${dir}/$(basename "${base}")" ;;
+cpp) g++ "${file}" -o "${dir}/$(basename "${base}")" && "${dir}/$(basename "${base}")" ;;
+cs) mcs "${file}" && mono "${base}.exe" ;;
+docx) libreoffice --convert-to pdf:writer_pdf_Export "${file}";;
+doc) libreoffice --convert-to pdf:writer_pdf_Export "${file}";;
+pptx) libreoffice --convert-to pdf "${file}";;
+ppt) libreoffice --convert-to pdf "${file}";;
+go) go run "${file}" ;;
+java) javac -d classes "${file}" && java -cp classes "${base}" ;;
+lua) lua "${file}" ;;
+m) octave "${file}" ;;
+md)
+  yaml_file=""
+  [ -f "${dir}/metadata.yaml" ] && yaml_file="${dir}/metadata.yaml"
+  pandoc_cmd_pdf="pandoc \"${file}\" --output=\"${base}.pdf\" --pdf-engine=xelatex --filter pandoc-crossref --citeproc --highlight-style=tango"
+  pandoc_cmd_docx="pandoc \"${file}\" --output=\"${base}.docx\" --filter pandoc-crossref --citeproc --highlight-style=tango"
+  [ -n "${yaml_file}" ] && pandoc_cmd_pdf="${pandoc_cmd_pdf} --metadata-file=\"${yaml_file}\"" && pandoc_cmd_docx="${pandoc_cmd_docx} --metadata-file=\"${yaml_file}\""
+  eval "${pandoc_cmd_pdf}" || exit 1
+  eval "${pandoc_cmd_docx}" || exit 1
+  ;;
+org) emacs "${file}" --batch -u "${USER}" -f org-latex-export-to-pdf ;;
+pl) perl "${file}" ;;
+py) python "${file}" ;;
+qalc) qalc -c -f "${file}" ;;
+[rR]md) Rscript -e "rmarkdown::render('${file}', quiet=TRUE)" ;;
+rs) cargo build ;;
+sass) sassc -a "${file}" "${base}.css" ;;
+scad) openscad -o "${base}.stl" "${file}" ;;
+scm) guile "${file}" ;;
+sent) setsid -f nsent "${file}" 2>"/dev/null" ;;
+tex)
+  textarget="$(getcomproot "${file}" || echo "${file}")"
+  command="pdflatex"
+  head -n5 "${textarget}" | grep -qi "xelatex" && command="xelatex"
+  ${command} --output-directory="${textarget%/*}" "${textarget%.*}" &&
+    grep -qi addbibresource "${textarget}" &&
+    biber --input-directory "${textarget%/*}" "${textarget%.*}" &&
+    ${command} --output-directory="${textarget%/*}" "${textarget%.*}" &&
+    ${command} --output-directory="${textarget%/*}" "${textarget%.*}"
+  ;;
+*) sed -n '/^#!/s/^#!//p; q' "${file}" | xargs -r -I % "${file}" ;;
+esac

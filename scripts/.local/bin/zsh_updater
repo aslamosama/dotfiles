@@ -1,0 +1,170 @@
+#!/usr/bin/env zsh
+
+# Emoji and color helpers
+GREEN=$'\033[0;32m'
+RED=$'\033[0;31m'
+BLUE=$'\033[0;34m'
+YELLOW=$'\033[0;33m'
+RESET=$'\033[0m'
+CHECK="${GREEN}✔${RESET}"
+CROSS="${RED}✘${RESET}"
+ARROW="${BLUE}➤${RESET}"
+
+# Plugin directory
+ZSH_PLUGIN_DIR="${ZSH_PLUGIN_DIR:-$HOME/.config/zsh/plugins}"
+mkdir -p "$ZSH_PLUGIN_DIR"
+
+# Git-based plugins
+GIT_PLUGINS=(
+  "zdharma-continuum/fast-syntax-highlighting"
+  "romkatv/powerlevel10k"
+  "zsh-users/zsh-autosuggestions"
+  "zsh-users/zsh-completions"
+  "pkasemir/find-the-command"
+  "aslingguang/fzf-tab-source"
+)
+
+# Curl-based plugins
+CURL_PLUGINS=(
+  "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/sudo/sudo.plugin.zsh"
+)
+
+# Defaults
+SHOW_HELP=0
+DO_SYNC=1
+DO_COMPILE=1
+
+# Parse args
+for arg in "$@"; do
+  case "$arg" in
+    -h|--help)
+      SHOW_HELP=1
+      ;;
+    -s|--sync-only)
+      DO_COMPILE=0
+      ;;
+    -c|--compile-only)
+      DO_SYNC=0
+      ;;
+    *)
+      echo "Unknown option: $arg" >&2
+      SHOW_HELP=1
+      ;;
+  esac
+done
+
+if (( SHOW_HELP )); then
+  cat <<EOF
+Usage: ${0##*/} [options]
+
+Options:
+  -h, --help           Show this help message and exit
+  -s, --sync-only      Sync plugins only (no compilation)
+  -c, --compile-only   Compile plugins only (no syncing)
+EOF
+  exit 0
+fi
+
+# Log file
+LOG_FILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh_updater.log"
+mkdir -p "$(dirname "$LOG_FILE")"
+: > "$LOG_FILE"  # Clear old log
+
+# Clone or update git plugins
+function handle_git_plugins() {
+  local jobs=()
+  for entry in "${GIT_PLUGINS[@]}"; do
+    {
+      local org_repo="$entry"
+      local repo_name="${entry##*/}"
+      local plugin_path="$ZSH_PLUGIN_DIR/$repo_name"
+
+      if [[ -d "$plugin_path/.git" ]]; then
+        if git -C "$plugin_path" pull --ff-only >>"$LOG_FILE" 2>&1; then
+          print -P "  ${CHECK} Updated %F{green}${repo_name}%f"
+        else
+          print -P "  ${CROSS} Failed to update %F{red}${repo_name}%f"
+        fi
+      else
+        if git clone --depth=1 "https://github.com/$org_repo.git" "$plugin_path" >>"$LOG_FILE" 2>&1; then
+          print -P "  ${CHECK} Cloned %F{green}${repo_name}%f"
+        else
+          print -P "  ${CROSS} Failed to clone %F{red}${repo_name}%f"
+        fi
+      fi
+    } &
+    jobs+=($!)
+  done
+  for job in "${jobs[@]}"; do wait "$job"; done
+}
+
+# Download curl-based plugins
+
+function handle_curl_plugins() {
+  local jobs=()
+  for url in "${CURL_PLUGINS[@]}"; do
+    {
+      local filename="${url##*/}"
+      local plugin_name="${filename%%.*}"
+      local plugin_path="$ZSH_PLUGIN_DIR/$plugin_name"
+
+      mkdir -p "$plugin_path"
+      if curl -sSL -o "$plugin_path/$filename" "$url" >>"$LOG_FILE" 2>&1; then
+        print -P "  ${CHECK} Downloaded %F{green}${filename}%f"
+      else
+        print -P "  ${CROSS} Failed to download %F{red}${filename}%f"
+      fi
+    } &
+    jobs+=($!)
+  done
+  for job in "${jobs[@]}"; do wait "$job"; done
+}
+
+# Compile .zsh files to zwc
+function zcompile-many() {
+  for f in "$@"; do
+    local zwc="${f}.zwc"
+    if [[ -f "$f" && (! -f "$zwc" || "$f" -nt "$zwc") ]]; then
+      if zcompile -R -- "$f.zwc" "$f" >>"$LOG_FILE" 2>&1; then
+        # print -P "  ${CHECK} Compiled %F{cyan}${f##*/}%f"
+      else
+        print -P "  ${CROSS} Failed to compile %F{red}${f##*/}%f"
+      fi
+    fi
+  done
+}
+
+# Discover plugin .zsh/.plugin.zsh files
+function discover_zsh_files() {
+  find "$ZSH_PLUGIN_DIR" \
+    -type f \( -name "*.zsh" -o -name "*.plugin.zsh" \) \
+    -not -path "$ZSH_PLUGIN_DIR/powerlevel10k/*" \
+    -not -path "*/test/*" \
+    -not -path "*/Test/*"
+}
+
+# Compile powerlevel10k
+function compile_powerlevel10k() {
+  # print -P "${ARROW} Compiling %F{yellow}powerlevel10k%f theme..."
+  if make -C "$ZSH_PLUGIN_DIR/powerlevel10k" pkg >>"$LOG_FILE" 2>&1; then
+    # print -P "  ${CHECK} Compiled %F{cyan}powerlevel10k%f"
+  else
+    print -P "  ${CROSS} Failed to compile %F{red}powerlevel10k%f"
+  fi
+}
+
+# Run everything
+if (( DO_SYNC )); then
+  print -P "\n${ARROW} %F{yellow}Syncing Zsh Plugins ...%f"
+  handle_git_plugins
+  handle_curl_plugins
+fi
+
+if (( DO_COMPILE )); then
+  print -P "\n${ARROW} %F{yellow}Compiling Zsh Plugin Files ...%f"
+  zcompile-many $(discover_zsh_files)
+  compile_powerlevel10k
+fi
+
+print -P "\n${ARROW} %F{yellow}Log saved to:%f $LOG_FILE"
+# print -P "${BLUE}Log saved to:${RESET} $LOG_FILE"

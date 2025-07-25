@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# Validate arguments
+if [[ $# -ne 1 || ! -f $1 ]]; then
+  printf "Usage: %s <file>\n" "$0" >&2
+  exit 1
+fi
+
+FILE_PATH="$1"
+TEMP_DIR=$(mktemp -d)
+QR_CODE_IMAGE="$TEMP_DIR/qrcode.png"
+
+# Function to upload with fallback logic
+upload_file() {
+  local FILE="$1"
+  local LINK=""
+
+  # Try 0x0.st
+  LINK=$(curl -sf -F "file=@${FILE}" -F "expires=2" https://0x0.st) && { echo "$LINK"; return 0; }
+
+  # Try x0.at
+  LINK=$(curl -sf -F "file=@${FILE}" -F "expires=2" https://x0.at/) && { echo "$LINK"; return 0; }
+
+  # Try transfer.sh
+  LINK=$(curl -sf --upload-file "$FILE" "https://transfer.sh/$(basename "$FILE")") && { echo "$LINK"; return 0; }
+
+  # Try file.io
+  LINK=$(curl -sf -F "file=@${FILE}" https://file.io | jq -r '.link') && { echo "$LINK"; return 0; }
+
+  return 1
+}
+
+# Upload file
+if ! LINK=$(upload_file "$FILE_PATH"); then
+  printf "Error: Failed to upload file to all services.\n" >&2
+  rm -rf "$TEMP_DIR"
+  exit 1
+fi
+
+# Copy link to clipboard
+printf "%s" "$LINK" | xclip -selection clipboard
+
+# Generate QR code with link displayed under it
+{
+  printf "%s\n" "$LINK"
+  qrencode -o "$QR_CODE_IMAGE" -s 10 "$LINK"
+  magick "$QR_CODE_IMAGE" -gravity South -splice 0x40 -pointsize 20 -annotate +0+10 "$LINK" "$QR_CODE_IMAGE"
+} || {
+  printf "Error: Failed to generate QR code.\n" >&2
+  rm -rf "$TEMP_DIR"
+  exit 1
+}
+
+# Open QR code with nsxiv in background
+nsxiv "$QR_CODE_IMAGE" &
+disown
+
+# Cleanup temporary directory after delay
+(
+  sleep 10
+  rm -rf "$TEMP_DIR"
+) &
+disown

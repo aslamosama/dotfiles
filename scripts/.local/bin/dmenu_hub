@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+
+dmenu_command="dmenu -i"
+
+menu=$(
+  cat <<EOF
+󰀻  Apps            | dmenu_run -i -p "dmenu_run:"
+  Web Search      | dmenu_web
+  Themes          | themeflip
+󰉦  Bar colors      | bar_colors_toggle
+󰌹  Handler         | dmenuhandler
+  Screenshot      | maimpick
+  Record          | dmenurecord
+󰌌  Keybinds        | keybinds
+󰋊  Mount           | mounter
+󱁌  Unmount         | unmounter
+󰄄  Camera          | bash -c 'mpv --untimed --no-cache --no-config --no-osc --no-input-default-bindings --profile=low-latency --input-conf=/dev/null --title=webcam $(ls /dev/video[0,2,4,6,8] | tail -n 1)'
+  Kill            | processkill
+  NerdFont Icons  | dmenunerdsymbols
+EOF
+)
+
+options=$(echo "$menu" | cut -d '|' -f1 | sed 's/[[:space:]]*$//')
+selected_option=$(echo "$options" | eval "$dmenu_command")
+if [ -n "$selected_option" ]; then
+  action=$(echo "$menu" | awk -F'|' -v option="$selected_option" '$1 ~ option {print $2}')
+  [ -n "$action" ] && eval "$action"
+fi

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Description: Creates a project for c++
+
+[[ -z "$1" ]] && echo "Error: Project name not provided" >&2 && exit 1
+[[ ! $1 =~ ^[a-zA-Z0-9_-]+$ ]] && echo "Error: Invalid project name. Chars allowed: [a-zA-Z0-9_-]" >&2 && exit 1
+
+project_dir="$HOME/Projects/academic/$1"
+
+[[ -d "$project_dir" ]] && cd "$project_dir" && lf && exit 1
+
+ff "$project_dir"/{01_introduction,02_methodology,03_results,04_discussion,05_conclusion}.md "$project_dir"/{references.bib,figures/}
+
+cp ~/.local/share/script-data/academic/Makefile "$project_dir"/Makefile
+cp ~/.local/share/script-data/academic/metadata.yaml "$project_dir"/metadata.yaml
+cp -r ~/.local/share/script-data/academic/csl "$project_dir"/csl
+
+nvim "$project_dir"

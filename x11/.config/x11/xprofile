@@ -1,0 +1,16 @@
+#!/bin/sh
+
+xrandr --dpi 112 # Set DPI. User may want to use a larger number for larger screens.
+setbg &         # set the background with the `setbg` script
+# nvim --headless "+Lazy! load all" +qa &
+xrdb "${XDG_CONFIG_HOME:-$HOME/.config}"/x11/xresources &
+xrdbpid=$! # Uncomment to use Xresources colors/settings on startup
+
+autostart="fuz-cache picom dictd pipewire unclutter remapd file-handler clipmenud dunst"
+
+for program in $autostart; do
+  pidof -sx "$program" || "$program" &
+done >/dev/null 2>&1
+
+# Ensure that xrdb has finished running before moving on to start the WM/DE.
+[ -n "$xrdbpid" ] && wait "$xrdbpid"

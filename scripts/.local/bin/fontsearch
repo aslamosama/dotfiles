@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Search and select installed fonts using fc-list and fzf
+
+fc-list | cut -d: -f2- | fzf

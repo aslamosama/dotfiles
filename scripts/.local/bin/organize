@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+# Auto-organize files into categorized folders
+
+declare -A FOLDERS=(
+  ["video"]="Videos"
+  ["audio"]="Audios"
+  ["image"]="Images"
+  ["pdf|document|epub|djvu|cb"]="Documents"
+  ["text"]="Plaintext"
+  ["tar|xz|compress|7z|rar|zip"]="Compressed"
+  ["binary"]="Binaries"
+  ["spreadsheet|excel"]="Spreadsheets"
+  ["presentation"]="Presentations"
+)
+
+organize_file() {
+  local file_type folder destination
+  file_type=$(file -biL "$1") || return 1
+
+  for type in "${!FOLDERS[@]}"; do
+    if [[ "$file_type" =~ $type ]]; then
+      folder=${FOLDERS[$type]}
+      [ ! -d "$folder" ] && mkdir "$folder"
+      destination="$folder/$1"
+      if mv -- "$1" "$destination" 2>/dev/null; then
+        printf "Moved %s to %s\n" "$1" "$folder"
+      else
+        printf "Error moving %s to %s\n" "$1" "$folder" >&2
+      fi
+      return
+    fi
+  done
+
+  [ ! -d "Others" ] && mkdir "Others"
+  destination="Others/$1"
+  if mv -- "$1" "$destination" 2>/dev/null; then
+    printf "Moved %s to Others\n" "$1"
+  else
+    printf "Error moving %s to Others\n" "$1" >&2
+  fi
+}
+
+main() {
+  for file in *; do
+    [ -f "$file" ] && organize_file "$file"
+  done
+}
+
+main "$@"

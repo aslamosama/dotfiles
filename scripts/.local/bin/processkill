@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+ps_command="ps -eo comm:25,pid --sort=-%mem" # 25 char command name and pids sorted by memory usage
+dmenu_command="dmenu -i -p 'ProcessKill:'"
+
+# tab separated list for dmenu to ignore showing the pid
+process_list=$(eval "$ps_command" | sed -E '1d; s/[[:space:]]{2,}/\t/g')
+
+selected_process=$(echo "$process_list" | eval "$dmenu_command")
+
+process_name=$(echo "$selected_process" | awk '{$NF=""; print}')
+process_pid=$(echo "$selected_process" | awk '{print $NF}')
+
+[[ -z $process_pid ]] && exit 1
+if ps -p "$process_pid" >/dev/null 2>&1; then
+  choice=$(echo -e "yes\nno" | dmenu -i -p "Terminate '$(ps -o comm= -p "$process_pid")'?") &&
+    ([[ $choice == "yes" ]] && kill "$process_pid") || exit 0
+else
+  notify-send "Process: $process_name not found"
+fi

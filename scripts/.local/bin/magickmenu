@@ -1,0 +1,273 @@
+#!/bin/bash
+
+# === Check dependencies ===
+for cmd in magick fzf; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "$cmd is required but not installed. Install it and try again."
+    exit 1
+  fi
+done
+
+# === Ensure image arguments are passed ===
+if [ "$#" -eq 0 ]; then
+  echo "Usage: $0 image1.jpg image2.png ..."
+  exit 1
+fi
+
+# === Menu options ===
+OPTIONS=(
+  "1. Resize to Screen Size"
+  "2. Resize"
+  "3. Format Converter"
+  "4. Fancy Blurred Wallpaper"
+  "5. Shadow Screenshot"
+  "6. Add Blur + Noise"
+  "7. Deinterlace PNGs"
+  "8. Add Auto Caption"
+  "9. Exit"
+)
+
+# === Get screen resolution ===
+get_screen_resolution() {
+  if command -v xrandr &>/dev/null; then
+    read W H < <(xrandr | grep '*' | awk '{print $1}' | head -n1 | awk -Fx '{print $1, $2}')
+  else
+    W=1920
+    H=1080
+  fi
+}
+
+# === Effect functions ===
+
+add_shadow() {
+  local file="$1" out="$2"
+  magick "$file" \( +clone -background black -shadow 80x20+0+15 \) +swap \
+    -background transparent -layers merge +repage "$out"
+}
+
+add_blur_noise() {
+  local file="$1" out="$2"
+  magick "$file" -filter Gaussian -blur 0x0.5 -attenuate 0.2 +noise Gaussian -quality 0 "$out"
+}
+
+make_wallpaper() {
+  local file="$1" name="$2" dir="$3"
+  local fg="$TMP/fg_${name}.png"
+  local bg="$TMP/bg_${name}.png"
+  local out="$dir/wallpaper_${name}.png"
+
+  magick "$file[0]" -trim +repage -alpha remove -resize "${W}x${H}" \
+    \( +clone -alpha extract -draw "fill black polygon 0,0 0,15 15,0 fill white circle 15,15 15,0" \
+    \( +clone -flip \) -compose Multiply -composite \
+    \( +clone -flop \) -compose Multiply -composite \) \
+    -alpha off -compose CopyOpacity -composite -quality 0 "$fg"
+
+  magick "$fg" -resize "${W}x${H}" \
+    \( +clone -background black -shadow 35x15+0+0 \) +swap \
+    -background none -layers merge +repage -quality 0 "$fg"
+
+  magick "$file[0]" -trim +repage -alpha remove -gravity center -crop 1:1 \
+    -resize x250 -blur 0x3 -filter gaussian -resize "${W}x" -resize 120% \
+    -fill black -evaluate multiply 0.75 -attenuate 0.3 +noise gaussian -quality 0 "$bg"
+
+  magick -size "${W}x${H}" canvas:none -gravity center -quality 0 "$bg" -composite \
+    \( "$fg" -resize 84% \) -composite -quality 0 "$out"
+}
+
+deinterlace_png() {
+  local file="$1"
+  local out="$2"
+  magick "$file" -strip -interlace PNG "$out"
+}
+
+resize_to_screen_if_matching_aspect() {
+  local file="$1"
+  local out="$2"
+
+  # Get image dimensions
+  read iw ih < <(identify -format "%w %h" "$file")
+
+  # Calculate aspect ratios
+  img_ratio=$(awk "BEGIN { printf \"%.5f\", $iw / $ih }")
+  screen_ratio=$(awk "BEGIN { printf \"%.5f\", $W / $H }")
+
+  # Allow tiny tolerance (e.g., 0.01) for floating point comparison
+  diff=$(awk "BEGIN { print ($img_ratio > $screen_ratio) ? $img_ratio - $screen_ratio : $screen_ratio - $img_ratio }")
+
+  if (($(awk "BEGIN { print ($diff <= 0.01) ? 1 : 0 }"))); then
+    echo "✅ Resizing $file to ${W}x${H}..."
+    magick "$file" -resize "${W}x${H}!" "$out"
+  else
+    echo "⚠️ Skipping $file (aspect ratio doesn't match screen)"
+  fi
+}
+
+convert_format() {
+  local target_format="$1"
+  shift
+  local files=("$@")
+
+  if [[ "$target_format" == "pdf" ]]; then
+    local out="converted_output.pdf"
+    echo "🧾 Creating multi-page PDF: $out"
+    magick "${files[@]}" "$out"
+    echo "✅ PDF created: $out"
+    return
+  fi
+
+  for file in "${files[@]}"; do
+    local name="${file##*/}"
+    local base="${name%.*}"
+    local dir="$(dirname "$file")"
+    local out="$dir/${base}.${target_format,,}"
+
+    if [[ "${file##*.}" == "$target_format" ]]; then
+      echo "⏭️ Skipping $file (already in .$target_format)"
+      continue
+    fi
+
+    case "$target_format" in
+    jpg | jpeg) magick "$file" -quality 90 "$out" ;;
+    png) magick "$file" -strip "$out" ;;
+    webp) magick "$file" -quality 85 "$out" ;;
+    avif) magick "$file" -quality 50 "$out" ;;
+    bmp | jxl | tiff | ico | gif | heic) magick "$file" "$out" ;;
+    *)
+      echo "❌ Unsupported format: $target_format"
+      continue
+      ;;
+    esac
+
+    echo "✅ Converted $file → $out"
+  done
+}
+
+resize_custom() {
+  local size="$1"
+  shift
+  local files=("$@")
+
+  for file in "${files[@]}"; do
+    local base=$(basename "$file")
+    local name="${base%.*}"
+    local dir=$(dirname "$file")
+    local out="$dir/${name}_resized_${size}.png"
+
+    if [[ "$size" =~ %$ ]]; then
+      # Percentage resize
+      echo "📏 Resizing $file to $size..."
+      magick "$file" -resize "$size" "$out"
+    elif [[ "$size" =~ ^[0-9]+x[0-9]+$ ]]; then
+      # Pixel resolution resize
+      echo "📐 Resizing $file to $size pixels..."
+      magick "$file" -resize "$size" "$out"
+    else
+      echo "❌ Invalid size format: $size"
+      continue
+    fi
+
+    echo "✅ Saved: $out"
+  done
+}
+
+add_autocaption() {
+  local file="$1"
+  local dir
+  dir=$(dirname "$file")
+  local name="${file##*/}"
+  name="${name%.*}"
+  local out="$dir/${name}_captioned.png"
+
+  read -p "📝 Enter caption text: " caption
+  read -p "📐 Caption region size (e.g., 200): " size
+  read -p "📦 Optional buffer (default 10): " buffer
+  read -p "🔤 Font (optional): " font
+  read -p "🎨 Text color (default white): " color
+  read -p "📄 Undercolor (optional): " undercolor
+  read -p "✏️ Outline color (optional): " outline
+  read -p "↔️ Max width (optional): " width
+
+  # Build command
+  cmd=(autocaption -s "$size" -t "$caption")
+  [[ -n "$buffer" ]] && cmd+=(-b "$buffer")
+  [[ -n "$font" ]] && cmd+=(-f "$font")
+  [[ -n "$color" ]] && cmd+=(-c "$color")
+  [[ -n "$undercolor" ]] && cmd+=(-u "$undercolor")
+  [[ -n "$outline" ]] && cmd+=(-o "$outline")
+  [[ -n "$width" ]] && cmd+=(-w "$width")
+
+  cmd+=("$file" "$out")
+
+  echo "🔧 Running: ${cmd[*]}"
+  "${cmd[@]}" && echo "✅ Saved: $out"
+}
+
+# === Menu ===
+choice=$(printf "%s\n" "${OPTIONS[@]}" | fzf --prompt="Choose an effect: ")
+[[ -z "$choice" || "$choice" == *Exit* ]] && exit 0
+
+# === Get screen resolution ===
+get_screen_resolution
+TMP=$(mktemp -d)
+
+# === Special case: Convert Format handles all files at once ===
+if [[ "$choice" == *"Format Converter"* ]]; then
+  format=$(printf "jpg\npng\nwebp\navif\nbmp\ntiff\nico\ngif\nheic\npdf\njxl" | fzf --prompt="Choose target format: ")
+  [[ -z "$format" ]] && echo "⏹️ Cancelled." && exit 0
+
+  convert_format "$format" "$@"
+  exit 0
+fi
+
+if [[ "$choice" == *"Resize (Custom)"* ]]; then
+  size=$(printf "%s\n" \
+    10% 20% 30% 40% 50% 60% 70% 80% 90% \
+    256x256 512x512 1024x1024 2048x2048 \
+    640x480 800x600 1024x768 1280x720 1280x800 1366x768 \
+    1440x900 1600x900 1680x1050 1920x1080 1920x1200 2560x1440 3840x2160 \
+    720x1280 1080x1920 1440x2560 2160x3840 |
+    fzf --prompt="Select resize target: ")
+
+  [[ -z "$size" ]] && echo "⏹️ Cancelled." && exit 0
+
+  resize_custom "$size" "$@"
+  exit 0
+fi
+
+if [[ "$choice" == *"Add Auto Caption"* ]]; then
+  for file in "$@"; do
+    [[ ! -f "$file" ]] && echo "Skipping invalid file: $file" && continue
+    add_autocaption "$file"
+  done
+  exit 0
+fi
+
+# === Process each file for other effects ===
+for file in "$@"; do
+  if [[ ! -f "$file" ]]; then
+    echo "Skipping invalid file: $file"
+    continue
+  fi
+
+  base=$(basename "$file")
+  name="${base%.*}"
+  dir=$(dirname "$file")
+
+  echo "▶ Processing: $file"
+
+  case "$choice" in
+  *"Shadow"*) add_shadow "$file" "$dir/${name}_shadow.png" ;;
+  *"Blur"*) add_blur_noise "$file" "$dir/${name}_blurred.png" ;;
+  *"Wallpaper"*) make_wallpaper "$file" "$name" "$dir" ;;
+  *"Deinterlace"*)
+    if [[ "$file" != *.png ]]; then
+      echo "⏭️ Skipping non-PNG file for deinterlace: $file"
+      continue
+    fi
+    deinterlace_png "$file" "$dir/${name}_deinterlaced.png"
+    ;;
+  *"Resize to Screen"*) resize_to_screen_if_matching_aspect "$file" "$dir/resized_${name}" ;;
+  esac
+done
+
+echo "✅ Done."

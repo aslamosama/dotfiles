@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# Paths to JSON files
+MAIN_JSON_FILE="$HOME/.local/share/script-data/chars/emojis.json"
+FRECENT_JSON_FILE="$HOME/.local/share/script-data/chars/frecent_emojis.json"
+
+if ! command -v jq >/dev/null || ! command -v xclip >/dev/null; then
+  printf "Error: Required commands 'jq' and 'xclip' are not installed.\n" >&2
+  exit 1
+fi
+if [[ ! -s $FRECENT_JSON_FILE || $(jq empty "$FRECENT_JSON_FILE" 2>/dev/null || echo "invalid") == "invalid" ]]; then
+  printf '{"emojis": []}\n' >"$FRECENT_JSON_FILE"
+fi
+
+get_categories() {
+  printf "Frecent\n"
+  jq -r 'to_entries | map(.value.category) | unique[]' "$MAIN_JSON_FILE"
+}
+get_subcategories() {
+  local category="$1"
+  jq -r --arg category "$category" \
+    'to_entries | map(select(.value.category == $category) | .value.subcategory) | unique[]' "$MAIN_JSON_FILE"
+}
+get_emojis() {
+  local category="$1"
+  local subcategory="$2"
+  jq -r --arg category "$category" --arg subcategory "$subcategory" \
+    'to_entries | map(select(.value.category == $category and .value.subcategory == $subcategory)) | map("\(.key)\t\(.value.name)")[]' "$MAIN_JSON_FILE"
+}
+get_frecent_emojis() {
+  jq -r 'to_entries | sort_by(-.value)[] | "\(.key)\t\(.value)"' "$FRECENT_JSON_FILE"
+}
+update_frecent_emojis() {
+  local emoji="$1"
+  if jq -e --arg emoji "$emoji" 'has($emoji)' "$FRECENT_JSON_FILE" >/dev/null; then
+    jq --arg emoji "$emoji" '.[$emoji] += 1' "$FRECENT_JSON_FILE" >"${FRECENT_JSON_FILE}.tmp" && mv "${FRECENT_JSON_FILE}.tmp" "$FRECENT_JSON_FILE"
+  else
+    jq --arg emoji "$emoji" '. += {($emoji): 1}' "$FRECENT_JSON_FILE" >"${FRECENT_JSON_FILE}.tmp" && mv "${FRECENT_JSON_FILE}.tmp" "$FRECENT_JSON_FILE"
+  fi
+}
+copy_to_clipboard() {
+  local emoji="$1"
+  printf "%s" "$emoji" | xclip -selection clipboard
+}
+
+category=$(get_categories | dmenu -i -bw 2 -l 5 -g 3 -c -p "Select Category:")
+[[ -z $category ]] && exit 1
+
+if [[ $category == "Frecent" ]]; then
+  selection=$(get_frecent_emojis | dmenu -i -bw 2 -fn 'unifont' -c -l 5 -g 10)
+  [[ -z $selection ]] && exit 1
+  emoji=$(printf "%s" "$selection" | cut -f1)
+else
+  subcategory=$(get_subcategories "$category" | dmenu -i -bw 2 -c -l 6 -g 3 -p "Select Subcategory:")
+  [[ -z $subcategory ]] && exit 1
+  selection=$(get_emojis "$category" "$subcategory" | dmenu -i -bw 2 -fn 'unifont' -c -l 5 -g 8)
+  [[ -z $selection ]] && exit 1
+  emoji=$(printf "%s" "$selection" | cut -f1)
+fi
+
+copy_to_clipboard "$emoji"
+update_frecent_emojis "$emoji"
+notify-send "Copied: $emoji"

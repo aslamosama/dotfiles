@@ -1,0 +1,90 @@
+#!/bin/sh
+
+for dep in maim gpick xclip xdotool dunst tesseract paplay; do
+  command -v "$dep" >/dev/null || {
+    notify-send "Missing dependency: $dep"
+    exit 1
+  }
+done
+
+output_dir="$HOME/Downloads/Images/Screenshots"
+log_file="$HOME/.cache/screenshot.log"
+sound="$HOME/.local/share/script-data/sounds/camera-shutter.mp3"
+xclip_cmd="xclip -sel clip -t image/png"
+
+mkdir -p "$output_dir"
+mkdir -p "$(dirname "$log_file")"
+
+# Icons
+ICON_FULL="󰊓  Fullscreen"
+ICON_WIN="󰖯  Window"
+ICON_AREA="󰩬  Area"
+ICON_OCR="  OCR"
+ICON_DELAYED="  Delay"
+ICON_COLOR="󰈋  Color"
+
+# User selection
+choice=$(printf "%s\n%s\n%s\n%s\n%s\n%s" "$ICON_FULL" "$ICON_WIN" "$ICON_AREA" "$ICON_DELAYED" "$ICON_OCR" "$ICON_COLOR" | dmenu -i -p "maimpick:")
+[ -z "$choice" ] && exit
+
+# Screenshot helper
+take_screenshot() {
+  maim "$@" "$output" || return
+  [ -f "$output" ] || return
+  [ -f "$sound" ] && paplay "$sound" &
+  "$xclip_cmd" <"$output"
+  if printf "No\nYes" | dmenu -i -p "Open in lf?" | grep -q "Yes"; then
+    st -e lf "$output"
+  fi
+  echo "$(date '+%Y-%m-%d %H:%M:%S') [screenshot] $output" >>"$log_file"
+}
+
+# Main case
+output="${output_dir}/$(date '+%y%m%d-%H%M-%S').png"
+
+case "$choice" in
+"$ICON_FULL")
+  take_screenshot -q -d 0.2
+  ;;
+"$ICON_WIN")
+  win_id="$(xdotool getactivewindow)"
+  take_screenshot -B -q -d 0.2 -i "$win_id"
+  ;;
+"$ICON_AREA")
+  take_screenshot -u -s
+  ;;
+"$ICON_DELAYED")
+  delay=$(seq 1 10 | dmenu -i -p "Delay in seconds:")
+  [ -n "$delay" ] && take_screenshot -q -d "$delay"
+  ;;
+"$ICON_OCR")
+  tmpfile=$(mktemp /tmp/ocr-XXXXXX.png)
+  trap 'rm -f "$tmpfile"' INT TERM EXIT
+  if maim -u -s >"$tmpfile"; then
+    [ -f "$sound" ] && paplay "$sound" &
+    ocr_text=$(tesseract "$tmpfile" - -l eng 2>/dev/null)
+    if [ -n "$ocr_text" ]; then
+      printf "%s" "$ocr_text" | xclip -sel clip
+      notify-send -a "OCR" "OCR Result:" "$(echo "$ocr_text" | head -n 5)"
+      {
+        echo "$(date '+%Y-%m-%d %H:%M:%S') [ocr]"
+        echo "$ocr_text"
+        echo "-----"
+      } >>"$log_file"
+    else
+      notify-send -u critical -a "OCR" "No text detected"
+    fi
+  else
+    notify-send -u critical -a "OCR" "Screenshot failed"
+  fi
+  ;;
+"$ICON_COLOR")
+  color=$(gpick --no-newline -pso)
+  [ -f "$sound" ] && paplay "$sound" &
+  tmp="/tmp/xcolor_${color}.png"
+  magick -size 24x24 xc:"$color" "$tmp"
+  printf %s "$color" | xclip -selection clipboard
+  dunstify -i "$tmp" -a "Color Picker" "$color"
+  echo "$(date '+%Y-%m-%d %H:%M:%S') [color] $color" >> "$log_file"
+  ;;
+esac

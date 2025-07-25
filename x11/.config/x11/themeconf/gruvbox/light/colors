@@ -1,0 +1,52 @@
+ *.background:            #FBF1C7
+ *.foreground:            #654735
+
+ *.color0:                #fbf1c7
+ *.color8:                #918274
+ *.color1:                #c14a4a
+ *.color9:                #c14a4a
+ *.color2:                #6c782e
+ *.color10:               #6c782e
+ *.color3:                #c35e0a
+ *.color11:               #c35e0a
+ *.color4:                #45707a
+ *.color12:               #45707a
+ *.color5:                #945e80
+ *.color13:               #945e80
+ *.color6:                #4c7a5d
+ *.color14:               #4c7a5d
+ *.color7:                #654735
+ *.color15:               #654735
+
+dwm.normbordercolor:      #f2e5bc
+dwm.normbgcolor:          #FBF1C7
+dwm.normfgcolor:          #050705
+dwm.selbordercolor:       #45707a
+dwm.selbgcolor:           #fbf1c7
+dwm.selfgcolor:           #050705
+dwm.tagsnormfgcolor:      #050705
+dwm.tagsnormbgcolor:      #FBF1C7
+dwm.tagsselfgcolor:       #050705
+dwm.tagsselbgcolor:       #f2e5bc
+dwm.titlenormfgcolor:     #6c782e
+dwm.titlenormbgcolor:     #f2e5bc
+dwm.titlenormbordercolor: #fbf1c7
+dwm.titlenormfloatcolor:  #945e80
+dwm.titleselfgcolor:      #050705
+dwm.titleselbgcolor:      #fbf1c7
+dwm.titleselbordercolor:  #45707a
+dwm.titleselfloatcolor:   #945e80
+dwm.hidnormfgcolor:       #6c782e
+dwm.hidselfgcolor:        #6c782e
+dwm.hidnormbgcolor:       #f2e5bc
+dwm.hidselbgcolor:        #fbf1c7
+
+dmenu.foreground:         #050705
+dmenu.background:         #FBF1C7
+dmenu.selforeground:      #FBF1C7
+dmenu.selbackground:      #45707a
+dmenu.bordercolor:        #45707a
+
+slock.locked:             #f2e5bc
+slock.input:              #45707a
+slock.failed:             #c14a4a

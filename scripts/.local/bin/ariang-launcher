@@ -1,0 +1,38 @@
+#!/bin/bash
+
+aria2c --enable-rpc --rpc-listen-all=true --rpc-allow-origin-all=true --rpc-listen-port=6800 &
+ARIA2_PID=$!
+echo "aria2c started (PID $ARIA2_PID)"
+
+ariang-allinone &
+
+sleep 3
+
+is_rpc_active() {
+  ss -tn state ESTABLISHED '( sport = :6800 )' | grep -q ':6800'
+}
+
+echo "Waiting for AriaNg to connect to aria2c RPC..."
+for i in {1..30}; do
+  if is_rpc_active; then
+    echo "AriaNg connected to RPC."
+    break
+  fi
+  sleep 1
+done
+
+if ! is_rpc_active; then
+  echo "No RPC connection detected after timeout. Waiting 60 seconds as fallback."
+  sleep 60
+else
+  echo "Monitoring active RPC connections..."
+  while is_rpc_active; do
+    sleep 10
+  done
+  echo "No more RPC connections. Assuming AriaNg session ended."
+fi
+
+kill "$ARIA2_PID"
+wait "$ARIA2_PID" 2>/dev/null
+
+echo "aria2c stopped."
