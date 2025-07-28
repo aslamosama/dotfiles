@@ -1,38 +1,103 @@
 #!/bin/bash
 
-aria2c --enable-rpc --rpc-listen-all=true --rpc-allow-origin-all=true --rpc-listen-port=6800 &
-ARIA2_PID=$!
-echo "aria2c started (PID $ARIA2_PID)"
+# --- CONFIG ---
+ARIA2_PORT=6800
+ARIA2_RPC_URL="http://localhost:$ARIA2_PORT/jsonrpc"
+DEFAULT_DOWNLOAD_DIR="$HOME/Downloads"
 
-ariang-allinone &
+# --- ARGUMENTS ---
+DOWNLOAD_URL=""
+DOWNLOAD_DIR="$DEFAULT_DOWNLOAD_DIR"
 
-sleep 3
-
-is_rpc_active() {
-  ss -tn state ESTABLISHED '( sport = :6800 )' | grep -q ':6800'
-}
-
-echo "Waiting for AriaNg to connect to aria2c RPC..."
-for i in {1..30}; do
-  if is_rpc_active; then
-    echo "AriaNg connected to RPC."
-    break
-  fi
-  sleep 1
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+  --url)
+    DOWNLOAD_URL="$2"
+    shift 2
+    ;;
+  --dir)
+    DOWNLOAD_DIR="$2"
+    shift 2
+    ;;
+  *)
+    notify-send " Aria2 Launcher" "Unknown argument: $1"
+    exit 1
+    ;;
+  esac
 done
 
-if ! is_rpc_active; then
-  echo "No RPC connection detected after timeout. Waiting 60 seconds as fallback."
-  sleep 60
+for cmd in aria2c ariang-allinone jq curl ss notify-send; do
+  command -v "$cmd" >/dev/null || {
+    notify-send " Aria2 Launcher" "Missing dependency: $cmd"
+    exit 1
+  }
+done
+
+# --- FUNCTIONS ---
+
+is_aria2c_running() {
+  ss -tln | grep -q ":$ARIA2_PORT"
+}
+
+is_rpc_active() {
+  ss -tn state ESTABLISHED '( sport = :6800 )' | grep -q ":6800"
+}
+
+aria2_rpc_add() {
+  local url="$1"
+  local dir="$2"
+  local json
+
+  json=$(jq -nc \
+    --arg url "$url" \
+    --arg dir "$dir" \
+    '{"jsonrpc":"2.0","id":"q","method":"aria2.addUri","params":[[$url], {"dir":$dir}]}')
+
+  if curl -s -d "$json" "$ARIA2_RPC_URL" >/dev/null; then
+    notify-send "󰇚 Aria2: Download added" "$url"
+  else
+    notify-send " Aria2: Failed to add download" "$url"
+  fi
+}
+
+# --- MAIN ---
+
+# Start aria2c if not already running
+ARIA2_STARTED_BY_SCRIPT=false
+if is_aria2c_running; then
+  notify-send "󰄛 Aria2c already running"
 else
-  echo "Monitoring active RPC connections..."
-  while is_rpc_active; do
-    sleep 10
-  done
-  echo "No more RPC connections. Assuming AriaNg session ended."
+  aria2c --enable-rpc --rpc-listen-all=true --rpc-allow-origin-all=true --rpc-listen-port=$ARIA2_PORT &
+  ARIA2_PID=$!
+  ARIA2_STARTED_BY_SCRIPT=true
+  echo "Started aria2c (PID $ARIA2_PID)"
+  notify-send "󰄛 Aria2: RPC started"
+  sleep 2
+  # Launch AriaNg UI
+  ariang-allinone &
+  notify-send "󰄛 AriaNg Launched"
 fi
 
-kill "$ARIA2_PID"
-wait "$ARIA2_PID" 2>/dev/null
+# Add download if URL is provided
+if [[ -n "$DOWNLOAD_URL" ]]; then
+  aria2_rpc_add "$DOWNLOAD_URL" "$DOWNLOAD_DIR"
+fi
 
-echo "aria2c stopped."
+# Monitor RPC port only if we started aria2c
+if [ "$ARIA2_STARTED_BY_SCRIPT" = true ]; then
+  for i in {1..10}; do
+    if is_rpc_active; then
+      break
+    fi
+    sleep 1
+  done
+
+  # Now monitor until all clients disconnect
+  while is_rpc_active; do
+    sleep 2
+  done
+
+  kill "$ARIA2_PID"
+  wait "$ARIA2_PID" 2>/dev/null
+  notify-send "󰗼 Aria2: RPC stopped"
+fi

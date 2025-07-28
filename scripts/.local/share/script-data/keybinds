@@ -1,13 +1,10 @@
 a,                   dmenu_hub,                     application launcher sysact reboot restart renew reload lock leave dwm
 alt-enter,           kitty,                         terminal emulator alternate
-alt-h,               dmenuhandler,                  link
-alt-l,               dictionary,                    define meaning thesaurus synonym
 backspace,           system actions,                sysact reboot restart renew reload lock leave dwm
 d,                   dmenu_run,                     applications launcher
 desktop-leftclick,   dmenu_hub,                     notifications applications scripts
 desktop-rightclick,  kill dunst & dmenu,            notifications close dmenu
 e,                   fuz-launcher,                  fuzzy search file opener finder
-f,                   fuz-launcher,                  fuzzy search file opener finder
 f7,                  clipboard manager,             clipmenu copy paste
 f8,                  gping,                         network monitoring latency
 f9,                  toggle bar,                    ui toggle bar
@@ -27,13 +24,14 @@ mod-ctrl-right,      switch to adjacent tag,        change workspaces tags
 mod-ctrl-shift-q,    quit dwm,                      exit quit
 mod-ctrl-up,         rotate stack,                  navigation rotate
 mod-ctrl-z,          show/hide window,              focus visibility
+mod-c,               dictionary,                    define meaning thesaurus synonym
 mod-d,               dmenu,                         application launcher dmenu
 mod-del,             renew dwm,                     refresh window manager wm
 mod-down,            focus below,                   navigation directional focus
 mod-drag,            move window,                   window management
 mod-enter,           st terminal,                   terminal emulator commandline
-mod-f,               fake fullscreen,               maximize
 mod-e,               fuz-launcher,                  fuzzy search file opener finder
+mod-f,               dmenuhandler,                  link
 mod-g,               notes,                         scratchpad notepad spnotes
 mod-h,               master size dec,               layout adjustment tiling resize
 mod-j,               focus next window,             navigation focus
@@ -53,7 +51,6 @@ mod-right,           focus right,                   navigation directional focus
 mod-scroll,          resize window,                 window management
 mod-shift-',         calculator-gui,                scratchpad gui calculator
 mod-shift-0,         all tags to current,           workspace tagging add all tags to focused
-mod-shift-b,         add bookmark,                  web browsing bookmarks dmenu_web
 mod-shift-comma,     move to prev monitor,          multi-monitor window management
 mod-shift-del,       kill dwm,                      leave log out
 mod-shift-enter,     st terminal popup,             scratchpad terminal yakuake dropdown
@@ -75,6 +72,7 @@ mod-up,              focus above,                   navigation directional focus
 mod-w,               firefox,                       web browser internet
 mod-x,               transfer to master,            layout adjustment focus management
 mod-y,               set monocle layout,            layout window management
+mod-z,               ariang downloader,             aria2c downloadmanager idm
 n,                   neovim,                        text editor terminal
 p,                   gping,                         network monitoring latency
 prtscr,              screenshot,                    capture
