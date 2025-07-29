@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Torrent
+Exec=ariang-launcher --url %U
+MimeType=x-scheme-handler/magnet;
+NoDisplay=true
