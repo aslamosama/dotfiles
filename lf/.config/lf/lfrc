@@ -209,6 +209,7 @@ map <a-s>   ${{ fileshare $f }}
 map b       $setbg $f
 map V       push :!nvim<space>
 map W       $setsid -f $TERMINAL >/dev/null 2>&1
+map S       %dust -n=0 -b -c $fx | sed 's/ [┌├└]── / /'
 map <a-g>   edit_in_gimp
 map <a-c>   copy_image_to_clipboard
 map <a-m>   $magickmenu "$fx"
@@ -225,7 +226,7 @@ map E extract
 map C compress
 
 map i     :rename
-map I     $printf '%s\n' "$fx" | vidir -
+map I     $printf '%s\n' "$fx" | xargs -I {} basename {} | edir --all --trash --sort-name --group-dirs-last
 map <a-i> ${{ set -f; sanitizefs ${fx} }}
 map <a-I> rename_random
 

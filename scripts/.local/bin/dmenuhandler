@@ -1,6 +1,7 @@
 #!/bin/bash
 
-feed="${1:-$(true | dmenu -p 'Link: ')}"
+clipboard=$(xclip -o -selection clipboard 2>/dev/null)
+feed="${1:-$(true | dmenu -p 'Link: ' -it "$clipboard")}"
 [ -z "$feed" ] && exit 1
 
 filename_from_url() {

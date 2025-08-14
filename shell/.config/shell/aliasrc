@@ -15,6 +15,8 @@ for command in mount umount pacman updatedb su shutdown poweroff reboot; do
 done
 unset command
 
+alias based="NVIM_APPNAME=based nvim"
+
 alias \
   be="fzf-fd \$HOME/.local/bin | xargs -r nvim" \
   ce="confedit" \
@@ -30,9 +32,7 @@ alias \
   mkd="mkdir -pv" \
   ll="lf" \
   ls="eza --icons --group-directories-first" \
-  lss="lsd -lt --total-size --group-directories-first" \
   lsa="eza -a --icons --group-directories-first" \
-  lsas="lsd -lAt --total-size --group-directories-first" \
   lst="eza -T --icons" \
   grep="grep --color=auto" \
   diff="diff --color=auto" \

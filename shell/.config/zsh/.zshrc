@@ -23,7 +23,7 @@ function _zcompile_many() {
     [[ -f "$f" && (! -f "$zwc" || "$f" -nt "$zwc") ]] && zcompile -R -- "$zwc" "$f"
   done
 }
-_zcompile_many ~/.config/{shell/{aliasrc,fzf},zsh/.{p10k{,-tty}.zsh,zcompdump}}
+_zcompile_many ~/.config/{shell/{aliasrc,fzf,exports},zsh/.{p10k{,-tty}.zsh,zcompdump}}
 unfunction _zcompile_many
 
 ZSH_AUTOSUGGEST_MANUAL_REBIND=1
@@ -33,7 +33,9 @@ source ~/.config/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.p
 source ~/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source ~/.config/zsh/plugins/find-the-command/usr/share/doc/find-the-command/ftc.zsh
 source ~/.config/zsh/plugins/sudo/sudo.plugin.zsh
-source ~/.config/shell/{aliasrc,fzf}
+source ~/.config/shell/aliasrc
+source ~/.config/shell/fzf
+source ~/.config/shell/exports
 
 if [[ -t 1 && "$(tty)" == /dev/tty([0-9]) && -z $DISPLAY && -z $WAYLAND_DISPLAY ]]; then
   source ~/.config/zsh/.p10k-tty.zsh
