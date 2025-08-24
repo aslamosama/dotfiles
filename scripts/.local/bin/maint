@@ -1,0 +1,391 @@
+#!/usr/bin/env bash
+# Script to run maintenance tasks on Arch Linux.
+
+set -euo pipefail
+
+# ==============================================================================
+# HELPER FUNCTIONS AND SETUP
+# ==============================================================================
+
+# Define color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Logging functions
+info() { printf "\n${BLUE}INFO:${NC} %s\n" "$1"; }
+success() { printf "${GREEN}SUCCESS:${NC} %s\n" "$1"; }
+warn() { printf "${YELLOW}WARNING:${NC} %s\n" "$1"; }
+input() { printf "${BLUE}INPUT REQUIRED:${NC} %s" "$1"; }
+error() {
+  printf "${RED}ERROR:${NC} %s\n" "$1"
+  exit 1
+}
+
+# Confirmation function
+confirm_step() {
+  while true; do
+    input "Proceed with '$1'? [y/N]: "
+    read -r response
+    case "$response" in
+    [yY]) return 0 ;;
+    [nN] | "") return 1 ;;
+    *) warn "Invalid input. Please enter 'y' or 'n'." ;;
+    esac
+  done
+}
+
+# Function to check if a command exists
+command_exists() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+backup_pacman_database() {
+  info "Backing up pacman database 💾"
+  BACKUP_DATE=$(date +%Y%m%d)
+  BACKUP_DIR="/var/lib/pacman/backup"
+
+  if [ ! -d "$BACKUP_DIR" ]; then
+    info "Creating backup directory..."
+    sudo mkdir -p $BACKUP_DIR
+  fi
+
+  BACKUP_FILE="$BACKUP_DIR/pacman_database_$BACKUP_DATE.tar.gz"
+
+  info "Creating backup of pacman database to $BACKUP_FILE"
+  sudo tar -czf "$BACKUP_FILE" -C /var/lib/pacman/ local
+  if [ $? -eq 0 ]; then
+    success "Pacman database backup created successfully"
+    info "To restore: sudo tar -xzf $BACKUP_FILE -C /var/lib/pacman/"
+  else
+    warn "Failed to create pacman database backup"
+  fi
+}
+
+update_mirrors() {
+  if command_exists reflector; then
+    info "Updating mirrors..."
+    sudo reflector --verbose -f 30 -l 30 --number 10 --download-timeout 30 --save /etc/pacman.d/mirrorlist
+  else
+    warn "reflector not found, skipping mirror update."
+  fi
+}
+
+seurity_arch_audit() {
+  info "Checking for vulnerable packages 🔒"
+  if command -v arch-audit &>/dev/null; then
+    arch-audit --upgradable
+  else
+    warn "arch-audit not installed. Install with: sudo pacman -S arch-audit"
+  fi
+}
+
+update_system() {
+  info "Updating system..."
+  if command_exists yay; then
+    yay -Syu --noconfirm
+  elif command_exists pacman; then
+    sudo pacman -Syu --noconfirm
+  else
+    msg_error "Neither yay nor pacman found. Cannot update system."
+  fi
+}
+
+update_pipx() {
+  info "Updating pipx packages..."
+  pipx upgrade-all
+}
+
+update_npm() {
+  info "Updating npm global packages..."
+  npm update -g
+}
+
+update_pandoc_sidenote() {
+  info "Updating Pandoc Sidenote"
+  SIDENOTE_DIR="$HOME/.local/src/pandoc-sidenote"
+  if [ -d "$SIDENOTE_DIR/.git" ]; then
+    info "Pulling latest changes for pandoc-sidenote"
+    git -C $SIDENOTE_DIR pull
+  else
+    info "Cloning pandoc-sidenote repository"
+    git clone https://github.com/jez/pandoc-sidenote $SIDENOTE_DIR
+  fi
+  cd $SIDENOTE_DIR && stack build && stack install
+}
+
+update_neovim() {
+  info "Updating Neovim Plugins..."
+  nvim --headless \"+Lazy! sync\" +qa
+}
+
+update_mpv_scripts() {
+  info "Updating mpv scripts..."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/tomasklaen/uosc/HEAD/installers/unix.sh)" || error "Failed to install uosc."
+  mkdir -p ~/.config/mpv/scripts
+  mkdir -p ~/.config/mpv/script-opts
+  curl -L https://raw.githubusercontent.com/po5/thumbfast/master/thumbfast.lua -o ~/.config/mpv/scripts/thumbfast.lua || error "Failed to download thumbfast.lua."
+  curl -L https://raw.githubusercontent.com/po5/thumbfast/master/thumbfast.conf -o ~/.config/mpv/script-opts/thumbfast.conf || error "Failed to download thumbfast.conf."
+  info "Updating ikatube mpv plugin..."
+  curl -L https://chino-chan.gitlab.io/programs.html -o ~/.cache/ikatubepage.html || error "Failed to download ikatube page."
+  URL=$(grep "ikatube-mpvplugin" ~/.cache/ikatubepage.html | awk -F'"' '{print $2}')
+  PLUGIN_URL="https://chino-chan.gitlab.io/$URL"
+  curl -L "$PLUGIN_URL" -o ~/.cache/ikatubeplugin.zip || error "Failed to download ikatube plugin."
+  unzip -o ~/.cache/ikatubeplugin.zip -d ~/.cache || error "Failed to unzip ikatube plugin."
+  cp -r ~/.cache/ikatube-mpvplugin/ikatube ~/.config/mpv/ikatube || error "Failed to copy ikatube config."
+  SCRIPT_PATH=$(find ~/.cache/ikatube-mpvplugin -maxdepth 1 -type f -name "*ikatube*.so" | head -n 1)
+  cp "$SCRIPT_PATH" ~/.config/mpv/scripts || error "Failed to copy ikatube script."
+  rm -rf ~/.cache/ikatubeplugin.zip ~/.cache/ikatubepage.html ~/.cache/ikatube-mpvplugin
+  tmp=$(mktemp) && jq '.mascot = ""' ~/.config/mpv/ikatube/ikatube.json >"$tmp" && mv "$tmp" ~/.config/mpv/ikatube/ikatube.json
+  info "Please change ikatube config manually if needed."
+  success "mpv scripts updated."
+}
+
+update_zsh() {
+  info "Updating Zsh plugins..."
+  zsh_updater
+}
+
+update_suckless_software() {
+  info "Updating suckless builds..."
+  SUCKLESS_DIR="$HOME/.config/suckless"
+  REPOS=("dmenu" "dwm" "dwmblocks" "slock" "st")
+  for repo in "${REPOS[@]}"; do
+    REPO_PATH="$SUCKLESS_DIR/$repo"
+    if [ -f "$REPO_PATH/.git" ]; then
+      info "Updating $repo ..."
+      cd "$REPO_PATH" || continue
+      if ! git diff-index --quiet HEAD --; then
+        warn "Skipping $repo: uncommitted changes detected"
+        continue
+      fi
+      git fetch upstream
+      if [ "$repo" = "dwmblocks" ]; then
+        git checkout main
+        git merge --ff-only upstream/main || warn "Merge failed for $repo"
+      else
+        git checkout master
+        git merge --ff-only upstream/master || warn "Merge failed for $repo"
+      fi
+    else
+      warn "$repo does not look like a valid git submodule"
+    fi
+  done
+}
+
+update_betterfox() {
+  info "Updating Betterfox user.js"
+  BETTERFOX_URL="https://raw.githubusercontent.com/yokoffing/Betterfox/main/user.js"
+  PROFILE_DIR="$HOME/.mozilla/firefox"
+  PROFILE_PATH_DEFAULT_RELEASE=$(find "$PROFILE_DIR" -maxdepth 1 -type d -name "*default-release*" | head -n 1)
+  PROFILE_PATH_OLDDEFAULT=$(find "$PROFILE_DIR" -maxdepth 1 -type d -name "*olddefault*" | head -n 1)
+  for profile in "$PROFILE_PATH_DEFAULT_RELEASE" "$PROFILE_PATH_OLDDEFAULT"; do
+    if [ -n "$profile" ] && [ -d "$profile" ]; then
+      info "Updating Betterfox in profile: $profile"
+      curl -fsSL "$BETTERFOX_URL" -o "$profile/user.js" || warn "Failed to update Betterfox for $profile"
+    else
+      warn "Firefox profile path not found, skipping."
+    fi
+  done
+}
+
+update_voidrice() {
+  info "Updating Voidrice"
+  VOIDRICE_DIR="$HOME/.local/src/voidrice"
+  if [ -d "$VOIDRICE_DIR/.git" ]; then
+    git -C $VOIDRICE_DIR pull
+  else
+    git clone https://github.com/lukesmithxyz/voidrice.git $VOIDRICE_DIR
+  fi
+}
+
+update_bookmarks() {
+  info "Updating Bookmarks"
+  BOOKMARKS_DIR="$HOME/.local/src/bookmarks"
+  if [ -d "$BOOKMARKS_DIR/.git" ]; then
+    git -C $BOOKMARKS_DIR pull
+  else
+    git clone https://github.com/fmhy/bookmarks.git $BOOKMARKS_DIR
+  fi
+}
+
+update_tldr() {
+  info "Updating TLDR database"
+  tldr --update
+}
+
+check_pacnew_pacsave_files() {
+  info "Checking for .pacnew and .pacsave files 🗂️"
+  find /etc -type f \( -name "*.pacnew" -o -name "*.pacsave" \) && warn "Review the above .pacnew/.pacsave files manually."
+}
+
+clean_old_kernels() {
+  info "Cleaning up old kernels 🧹"
+  INSTALLED_KERNELS=$(ls /boot/vmlinuz-* 2>/dev/null | sort -V)
+  KERNEL_COUNT=$(echo "$INSTALLED_KERNELS" | wc -l)
+  if [ "$KERNEL_COUNT" -gt 2 ]; then
+    REMOVE_KERNELS=$(echo "$INSTALLED_KERNELS" | head -n -2)
+    warn "Old kernels to remove:\n$REMOVE_KERNELS"
+  else
+    success "No old kernels to clean up."
+  fi
+}
+
+clear_cache() {
+  info "Clearing package cache..."
+  if command_exists paccache; then
+    sudo paccache -ruk0
+    sudo paccache -rk2
+  else
+    warn "paccache not found."
+  fi
+  if command_exists yay; then
+    sudo yay -Sc --noconfirm
+  else
+    warn "yay not found."
+  fi
+}
+
+remove_orphans() {
+  info "Removing orphaned packages..."
+  ORPHANS=$(sudo pacman -Qtdq)
+  if [[ -z "$ORPHANS" ]]; then
+    success "No orphaned packages to remove."
+  else
+    warn "The following orphaned packages were found:"
+    warn "$ORPHANS"
+    if confirm_step "Removing Ophans"; then
+      if command_exists yay; then
+        yay -Rns $ORPHANS --noconfirm
+      else
+        sudo pacman -Rns $ORPHANS --noconfirm
+      fi
+      success "System cleaned of orphaned packages"
+    else
+      warn "Skipping orphaned package removal"
+    fi
+  fi
+}
+
+check_systemd_services() {
+  info "Checking for failed systemd services"
+  sudo systemctl --failed
+  info "Checking enabled but inactive systemd services"
+  sudo systemctl list-unit-files --state=enabled --no-pager | grep -v 'static' | awk '{print $1}' | xargs -r -I {} sh -c 'sudo systemctl is-active --quiet {} || echo "{} is enabled but inactive"'
+}
+
+check_system_logs() {
+  info "Checking recent logs for critical errors"
+  sudo journalctl -p 3 -xb
+  success "System logs inspected"
+}
+
+clean_journal() {
+  info "Cleaning journal logs older than 2 weeks..."
+  sudo journalctl --vacuum-time=2weeks
+}
+
+trim_ssd() {
+  info "Trimming SSD..."
+  sudo fstrim -av
+}
+
+empty_trash() {
+  info "Emptying Trash 🗑️"
+  if command_exists trash-empty; then
+    trash-empty
+  else
+    warn "trash-cli not installed."
+  fi
+}
+
+refresh_font_cache() {
+  info "Refreshing font cache"
+  sudo fc-cache -rv
+}
+
+detect_leftover_configs() {
+  info "Checking for leftover configs..."
+  info "Checking /etc for unused configs..."
+  sudo find /etc -type f -name "*.pacsave" -o -name "*.pacnew"
+  info "Checking ~/.config for empty dirs..."
+  find ~/.config -maxdepth 2 -type d -empty
+}
+
+check_disk_usage() {
+  info "Displaying disk usage report"
+  if command_exists dysk; then
+    dysk -u binary
+  else
+    warn "dysk is not installed. Using df."
+    df -h
+  fi
+  success "Disk usage report generated."
+}
+
+disk_smart_check() {
+  info "Checking disk SMART health"
+  if command_exists smartctl; then
+    sudo smartctl --all /dev/sda | grep -E 'SMART overall-health|Reallocated_Sector_Ct|Power_On_Hours'
+    sudo smartctl --all /dev/sdb | grep -E 'SMART overall-health|Reallocated_Sector_Ct|Power_On_Hours'
+  else
+    warn "smartmontools not installed."
+  fi
+}
+
+battery_health_report() {
+  info "Battery health report"
+  if command_exists upower; then
+    upower -i $(upower -e | grep BAT)
+  elif command_exists acpi; then
+    acpi -V
+  else
+    warn "Neither upower nor acpi installed for battery reporting."
+  fi
+}
+
+check_sensors() {
+  info "Sensors Temps"
+  if command_exists sensors; then
+    sensors
+  else
+    warn "lm_sensors not installed."
+  fi
+}
+
+confirm_step "Pacman Database Backup" && backup_pacman_database
+confirm_step "Arch Mirrors Update" && update_mirrors
+confirm_step "Arch Audit" && seurity_arch_audit
+confirm_step "System Update" && update_system
+confirm_step "Orphans Removal" && remove_orphans
+confirm_step "Clearing Package Cache" && clear_cache
+confirm_step "Suckless Software Update" && update_suckless_software
+confirm_step "zsh Update" && update_zsh
+confirm_step "Neovim Update" && update_neovim
+confirm_step "pipx Update" && update_pipx
+confirm_step "npm Update" && update_npm
+confirm_step "Betterfox Update" && update_betterfox
+confirm_step "Pandoc Sidenote Update" && update_pandoc_sidenote
+confirm_step "mpv Scripts Update" && update_mpv_scripts
+confirm_step "Bookmarks Update" && update_bookmarks
+confirm_step "Voidrice Update" && update_voidrice
+confirm_step "TLDR Update" && update_tldr
+confirm_step "Clearing Journal" && clean_journal
+confirm_step "SSD Trimming" && trim_ssd
+confirm_step "Trash Emptying" && empty_trash
+confirm_step "Refreshing Font Cache" && refresh_font_cache
+confirm_step "Systemd Service Checkup" && check_systemd_services
+confirm_step "System Logs Checkup" && check_system_logs
+confirm_step "Checking Pacnew and Pacsaves FIles" && check_pacnew_pacsave_files
+confirm_step "Old Kernels Cleanup" && clean_old_kernels
+confirm_step "Detecting Leftover Configs" && detect_leftover_configs
+confirm_step "Disk Usage Report" && check_disk_usage
+confirm_step "Disk SMART Check" && disk_smart_check
+confirm_step "Battery Health Report" && battery_health_report
+confirm_step "Sensors Report" && check_sensors
+
+success "Maintenance tasks complete."
+
+# FIXME: mirrors voidrice pacnew pacsaves smart check

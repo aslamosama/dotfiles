@@ -88,7 +88,7 @@ case "$choice" in
 "$opt_video")
   format=$(select_quality)
   download_in_terminal "yt-dlp: Video" \
-    "yt-dlp -f \"$format\" -P \"$HOME/Downloads\" --embed-metadata -ic \"$feed\""
+    "yt-dlp --no-playlist -f \"$format\" -P \"$HOME/Downloads\" --embed-metadata -ic \"$feed\""
   ;;
 "$opt_playlist")
   format=$(select_quality)
@@ -97,7 +97,7 @@ case "$choice" in
   ;;
 "$opt_audio")
   download_in_terminal "yt-dlp: Audio" \
-    "yt-dlp -f bestaudio -P \"$HOME/Downloads\" --embed-metadata --restrict-filenames \"$feed\""
+    "yt-dlp --no-playlist -f bestaudio -P \"$HOME/Downloads\" --embed-metadata --restrict-filenames \"$feed\""
   ;;
 "$opt_download")
   download_dir="$HOME/Downloads"
