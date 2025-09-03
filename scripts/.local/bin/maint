@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 # Script to run maintenance tasks on Arch Linux.
 
-set -euo pipefail
-
 # ==============================================================================
 # HELPER FUNCTIONS AND SETUP
 # ==============================================================================
@@ -22,19 +20,6 @@ input() { printf "${BLUE}INPUT REQUIRED:${NC} %s" "$1"; }
 error() {
   printf "${RED}ERROR:${NC} %s\n" "$1"
   exit 1
-}
-
-# Confirmation function
-confirm_step() {
-  while true; do
-    input "Proceed with '$1'? [y/N]: "
-    read -r response
-    case "$response" in
-    [yY]) return 0 ;;
-    [nN] | "") return 1 ;;
-    *) warn "Invalid input. Please enter 'y' or 'n'." ;;
-    esac
-  done
 }
 
 # Function to check if a command exists
@@ -164,10 +149,10 @@ update_suckless_software() {
       git fetch upstream
       if [ "$repo" = "dwmblocks" ]; then
         git checkout main
-        git merge --ff-only upstream/main || warn "Merge failed for $repo"
+        git merge --no-edit upstream/main || echo -e "${RED}❌ Merge failed for $repo${NC}"
       else
         git checkout master
-        git merge --ff-only upstream/master || warn "Merge failed for $repo"
+        git merge --no-edit upstream/master || echo -e "${RED}❌ Merge failed for $repo${NC}"
       fi
     else
       warn "$repo does not look like a valid git submodule"
@@ -218,7 +203,7 @@ update_tldr() {
 
 check_pacnew_pacsave_files() {
   info "Checking for .pacnew and .pacsave files 🗂️"
-  find /etc -type f \( -name "*.pacnew" -o -name "*.pacsave" \) && warn "Review the above .pacnew/.pacsave files manually."
+  sudo find /etc -type f \( -name "*.pacnew" -o -name "*.pacsave" \) && warn "Review the above .pacnew/.pacsave files manually."
 }
 
 clean_old_kernels() {
@@ -250,22 +235,26 @@ clear_cache() {
 
 remove_orphans() {
   info "Removing orphaned packages..."
-  ORPHANS=$(sudo pacman -Qtdq)
+  ORPHANS=$(sudo pacman -Qtdq || true)
   if [[ -z "$ORPHANS" ]]; then
     success "No orphaned packages to remove."
   else
     warn "The following orphaned packages were found:"
-    warn "$ORPHANS"
-    if confirm_step "Removing Ophans"; then
+    echo "$ORPHANS"
+    read -rp "Proceed with removing these orphaned packages? [y/N]: " ans </dev/tty
+    case "$ans" in
+    [yY]*)
       if command_exists yay; then
         yay -Rns $ORPHANS --noconfirm
       else
         sudo pacman -Rns $ORPHANS --noconfirm
       fi
-      success "System cleaned of orphaned packages"
-    else
-      warn "Skipping orphaned package removal"
-    fi
+      success "System cleaned of orphaned packages."
+      ;;
+    *)
+      warn "Skipping orphaned package removal."
+      ;;
+    esac
   fi
 }
 
@@ -355,37 +344,78 @@ check_sensors() {
   fi
 }
 
-confirm_step "Pacman Database Backup" && backup_pacman_database
-confirm_step "Arch Mirrors Update" && update_mirrors
-confirm_step "Arch Audit" && seurity_arch_audit
-confirm_step "System Update" && update_system
-confirm_step "Orphans Removal" && remove_orphans
-confirm_step "Clearing Package Cache" && clear_cache
-confirm_step "Suckless Software Update" && update_suckless_software
-confirm_step "zsh Update" && update_zsh
-confirm_step "Neovim Update" && update_neovim
-confirm_step "pipx Update" && update_pipx
-confirm_step "npm Update" && update_npm
-confirm_step "Betterfox Update" && update_betterfox
-confirm_step "Pandoc Sidenote Update" && update_pandoc_sidenote
-confirm_step "mpv Scripts Update" && update_mpv_scripts
-confirm_step "Bookmarks Update" && update_bookmarks
-confirm_step "Voidrice Update" && update_voidrice
-confirm_step "TLDR Update" && update_tldr
-confirm_step "Clearing Journal" && clean_journal
-confirm_step "SSD Trimming" && trim_ssd
-confirm_step "Trash Emptying" && empty_trash
-confirm_step "Refreshing Font Cache" && refresh_font_cache
-confirm_step "Systemd Service Checkup" && check_systemd_services
-confirm_step "System Logs Checkup" && check_system_logs
-confirm_step "Checking Pacnew and Pacsaves FIles" && check_pacnew_pacsave_files
-confirm_step "Old Kernels Cleanup" && clean_old_kernels
-confirm_step "Detecting Leftover Configs" && detect_leftover_configs
-confirm_step "Disk Usage Report" && check_disk_usage
-confirm_step "Disk SMART Check" && disk_smart_check
-confirm_step "Battery Health Report" && battery_health_report
-confirm_step "Sensors Report" && check_sensors
+# ── Menu Definition (preserves order) ─────────────────────────
+menu=$(
+  cat <<EOF
+ALL                                | __all__
+Pacman Database Backup             | backup_pacman_database
+Arch Mirrors Update                | update_mirrors
+Arch Audit                         | seurity_arch_audit
+System Update                      | update_system
+Orphans Removal                    | remove_orphans
+Clearing Package Cache             | clear_cache
+Suckless Software Update           | update_suckless_software
+zsh Update                         | update_zsh
+Neovim Update                      | update_neovim
+pipx Update                        | update_pipx
+npm Update                         | update_npm
+Betterfox Update                   | update_betterfox
+Pandoc Sidenote Update             | update_pandoc_sidenote
+mpv Scripts Update                 | update_mpv_scripts
+Bookmarks Update                   | update_bookmarks
+Voidrice Update                    | update_voidrice
+TLDR Update                        | update_tldr
+Clearing Journal                   | clean_journal
+SSD Trimming                       | trim_ssd
+Trash Emptying                     | empty_trash
+Refreshing Font Cache              | refresh_font_cache
+Systemd Service Checkup            | check_systemd_services
+System Logs Checkup                | check_system_logs
+Checking Pacnew and Pacsaves FIles | check_pacnew_pacsave_files
+Old Kernels Cleanup                | clean_old_kernels
+Detecting Leftover Configs         | detect_leftover_configs
+Disk Usage Report                  | check_disk_usage
+Disk SMART Check                   | disk_smart_check
+Battery Health Report              | battery_health_report
+Sensors Report                     | check_sensors
+EOF
+)
+
+# ── Menu Execution ────────────────────────────────────────────
+options=$(echo "$menu" | cut -d'|' -f1 | sed 's/[[:space:]]*$//')
+selected=$(echo "$options" | fzf --multi --no-sort \
+  --header="TAB to select, ENTER to run • Ctrl-A select all • Ctrl-D deselect all" --header-first \
+  --bind "ctrl-a:select-all,ctrl-d:deselect-all")
+
+[[ -z "$selected" ]] && {
+  warn "No tasks selected. Exiting."
+  exit 0
+}
+
+if grep -Fxq "ALL" <<<"$selected"; then
+  # Run all tasks in menu order (skip ALL itself)
+  while IFS='|' read -r label action; do
+    action=$(echo "$action" | xargs)
+    [[ "$action" == "__all__" ]] && continue
+    [[ -n "$action" ]] && $action
+  done <<<"$menu"
+else
+  # Put selections in an associative array for quick lookup
+  declare -A selected_map
+  while IFS= read -r line; do
+    selected_map["$line"]=1
+  done <<<"$selected"
+
+  # Walk the menu in order, running only selected ones
+  while IFS='|' read -r label action; do
+    label=$(echo "$label" | sed 's/[[:space:]]*$//')
+    action=$(echo "$action" | xargs)
+    if [[ -n "${selected_map[$label]+x}" && "$action" != "__all__" ]]; then
+      $action
+    fi
+  done <<<"$menu"
+fi
 
 success "Maintenance tasks complete."
 
-# FIXME: mirrors voidrice pacnew pacsaves smart check
+# FIXME: mirrors
