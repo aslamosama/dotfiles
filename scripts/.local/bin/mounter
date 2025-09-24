@@ -46,7 +46,8 @@ done | filter)"
 normalparts="$(echo "$lsblkoutput" | grep -v crypto_LUKS | grep 'part\|rom\|crypt' | sed "s/^/󰋊 /" | filter)"
 
 # Add all to one variable. If no mountable drives found, exit.
-alldrives="$(echo "$phones
+alldrives="$(echo " default_mounts
+$phones
 $unopenedluks
 $normalparts" | sed "/^$/d;s/ *$//")"
 
@@ -110,5 +111,20 @@ case "$chosen" in
   number="${chosen:1}" # This is a bashism.
   sudo -A simple-mtpfs -o allow_other -o fsname="simple-mtpfs-$(escape "$chosen")" --device "$number" "$mp"
   notify-send "🤖 Android Mounted." "Android device mounted to $mp."
+  ;;
+*)
+  MOUNTS=(
+    "/home/user/.drive"
+    "/mnt/d"
+    "/mnt/e"
+  )
+  for MNT in "${MOUNTS[@]}"; do
+    if mountpoint -q "$MNT"; then
+      echo "✔ Already mounted: $MNT"
+    else
+      sudo mount "$MNT" || echo "✘ Failed to mount $MNT"
+    fi
+  done
+  notify-send "✔ Default mounts processed"
   ;;
 esac

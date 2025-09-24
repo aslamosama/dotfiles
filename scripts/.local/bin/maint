@@ -307,6 +307,7 @@ check_disk_usage() {
   info "Displaying disk usage report"
   if command_exists dysk; then
     dysk -u binary
+    dust "$HOME" -X .drive
   else
     warn "dysk is not installed. Using df."
     df -h
@@ -347,6 +348,7 @@ check_sensors() {
 # ── Menu Definition (preserves order) ─────────────────────────
 menu=$(
   cat <<EOF
+DEFAULT                            | __default__
 ALL                                | __all__
 Pacman Database Backup             | backup_pacman_database
 Arch Mirrors Update                | update_mirrors
@@ -381,6 +383,23 @@ Sensors Report                     | check_sensors
 EOF
 )
 
+DEFAULT_TASKS=(
+  backup_pacman_database
+  update_system
+  remove_orphans
+  clear_cache
+  update_suckless_software
+  update_zsh
+  update_neovim
+  update_betterfox
+  update_mpv_scripts
+  update_bookmarks
+  update_voidrice
+  empty_trash
+  refresh_font_cache
+  check_disk_usage
+)
+
 # ── Menu Execution ────────────────────────────────────────────
 options=$(echo "$menu" | cut -d'|' -f1 | sed 's/[[:space:]]*$//')
 selected=$(echo "$options" | fzf --multi --no-sort \
@@ -399,6 +418,11 @@ if grep -Fxq "ALL" <<<"$selected"; then
     [[ "$action" == "__all__" ]] && continue
     [[ -n "$action" ]] && $action
   done <<<"$menu"
+elif grep -Fxq "DEFAULT" <<<"$selected"; then
+  # Run default tasks in defined order
+  for action in "${DEFAULT_TASKS[@]}"; do
+    $action
+  done
 else
   # Put selections in an associative array for quick lookup
   declare -A selected_map
@@ -410,12 +434,10 @@ else
   while IFS='|' read -r label action; do
     label=$(echo "$label" | sed 's/[[:space:]]*$//')
     action=$(echo "$action" | xargs)
-    if [[ -n "${selected_map[$label]+x}" && "$action" != "__all__" ]]; then
+    if [[ -n "${selected_map[$label]+x}" && "$action" != "__all__" && "$action" != "__default__" ]]; then
       $action
     fi
   done <<<"$menu"
 fi
 
 success "Maintenance tasks complete."
-
-# FIXME: mirrors
