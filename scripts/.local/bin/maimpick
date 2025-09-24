@@ -1,6 +1,6 @@
 #!/bin/sh
 
-for dep in maim gpick xclip xdotool dunst tesseract paplay; do
+for dep in maim gpick xclip xdotool dunst tesseract gradia paplay; do
   command -v "$dep" >/dev/null || {
     notify-send "Missing dependency: $dep"
     exit 1
@@ -33,9 +33,11 @@ take_screenshot() {
   [ -f "$output" ] || return
   [ -f "$sound" ] && paplay "$sound" &
   "$xclip_cmd" <"$output"
-  if printf "No\nYes" | dmenu -i -p "Open in lf?" | grep -q "Yes"; then
-    st -e lf "$output"
-  fi
+  action=$(printf "Nothing\nOpen in lf\nEdit" | dmenu -i -p "What now?")
+  case "$action" in
+  "Open in lf") st -e lf "$output" ;;
+  "Edit") setsid -f gradia "$output" >/dev/null 2>&1 & ;;
+  esac
   echo "$(date '+%Y-%m-%d %H:%M:%S') [screenshot] $output" >>"$log_file"
 }
 
@@ -85,6 +87,6 @@ case "$choice" in
   magick -size 24x24 xc:"$color" "$tmp"
   printf %s "$color" | xclip -selection clipboard
   dunstify -i "$tmp" -a "Color Picker" "$color"
-  echo "$(date '+%Y-%m-%d %H:%M:%S') [color] $color" >> "$log_file"
+  echo "$(date '+%Y-%m-%d %H:%M:%S') [color] $color" >>"$log_file"
   ;;
 esac

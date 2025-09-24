@@ -1,4 +1,5 @@
 set forcekittyanim
+set noimages
 
 remove atool
 remove glow

@@ -15,6 +15,11 @@ fpath=(~/.config/zsh/completions $fpath)
 
 autoload -Uz compinit && compinit
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*:descriptions' format '[%d]'
+zstyle ':fzf-tab:*' use-fzf-default-opts yes
+zstyle ':fzf-tab:*' continuous-trigger '/'
+zstyle ':fzf-tab:*' switch-group '<' '>'
+zstyle ':fzf-tab:*' fzf-bindings 'tab:toggle+down' 'alt-a:select-all' 'alt-d:deselect-all' 'alt-/:toggle-preview'
 zle_highlight=('paste:none')
 
 function _zcompile_many() {
@@ -31,7 +36,7 @@ source ~/.config/zsh/plugins/powerlevel10k/powerlevel10k.zsh-theme
 source ~/.config/zsh/plugins/fzf-tab-source/fzf-tab.plugin.zsh
 source ~/.config/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 source ~/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-source ~/.config/zsh/plugins/find-the-command/usr/share/doc/find-the-command/ftc.zsh
+source ~/.config/zsh/plugins/find-the-command/usr/share/doc/find-the-command/ftc.zsh noupdate quiet
 source ~/.config/zsh/plugins/sudo/sudo.plugin.zsh
 source ~/.config/shell/aliasrc
 source ~/.config/shell/fzf

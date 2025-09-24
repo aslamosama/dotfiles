@@ -16,6 +16,7 @@ mod-a,               dmenu hub,                     applications scripts mount c
 mod-alt-left,        shift window and tag,          move change workspaces tags
 mod-alt-right,       shift window and tag,          move change workspaces tags
 mod-b,               toggle bar,                    ui toggle bar
+mod-shift-b,         bluetooth,                     blue-tui
 mod-backspace,       system actions,                sysact reboot restart renew reload lock leave dwm
 mod-comma,           focus prev monitor,            multi-monitor navigation
 mod-ctrl-down,       rotate stack,                  navigation rotate

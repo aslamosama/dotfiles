@@ -44,7 +44,7 @@ preview_diff() {
 }
 
 preview_markdown() {
-  glow -s auto -w "$FZF_PREVIEW_COLUMNS" "$file"
+  mdcat --columns="$FZF_PREVIEW_COLUMNS" "$file"
 }
 
 preview_image() {

@@ -8,7 +8,7 @@ mkdir -p "$CACHE_DIR"
 
 FD_OPTIONS="--hidden --color=always --follow"
 
-FD_EXCLUDE_ARGS="-E .cache -E .config/emacs/elpa -E .config/emacs/transient -E .local/share/Trash -E .github -E github -E .local/state -E .ssh -E .android -E GIMP -E Thunar -E .config/blender -E .config/mpv/script_modules -E .config/mpv/scripts -E .config/tmux/plugins -E fontforge -E fzf-tab-completion -E .gnupg -E libreoffice -E node_modules  -E *.pyc -E .mozilla -E *.o"
+FD_EXCLUDE_ARGS="-E .cache -E network -E .config/emacs/elpa -E .config/emacs/transient -E .local/share/Trash -E .github -E github -E .local/state -E .ssh -E .android -E GIMP -E Thunar -E .config/blender -E .config/mpv/script_modules -E .config/mpv/scripts -E .config/tmux/plugins -E fontforge -E fzf-tab-completion -E .gnupg -E libreoffice -E node_modules  -E *.pyc -E .mozilla -E *.o"
 
 # Function to populate the cache
 populate_cache() {
@@ -26,13 +26,14 @@ populate_cache &
 
 MONITOR_EXCLUDE_DIRS=(
   "$HOME/.cache"
+  "$HOME/.config/emacs/elpa"
+  "$HOME/.config/emacs/transient"
+  "$HOME/.local/share/Trash"
+  "$HOME/.local/state"
   "$HOME/.mozilla"
   "$HOME/.pki"
   "$HOME/.terminfo"
-  "$HOME/.local/state"
-  "$HOME/.local/share/Trash"
-  "$HOME/.config/emacs/elpa"
-  "$HOME/.config/emacs/transient"
+  "$HOME/network"
 )
 
 # Combine excluded directories into a single regular expression pattern

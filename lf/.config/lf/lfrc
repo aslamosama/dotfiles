@@ -2,7 +2,7 @@
 set shellopts '-eu'
 set ifs "\n"
 set scrolloff 3
-set icons
+# set icons
 set hidden
 set period 1
 set sortby ext
@@ -16,6 +16,8 @@ set cleaner ctpvclear
 &ctpv -s $id
 &ctpvquit $id
 
+# set cleaner '~/.config/lf/cleaner'
+# set previewer '~/.config/lf/scope'
 
 cmd on-cd &{{
   lf -remote "send $id tty-write \"\033]0;(lf) ${PWD/#$HOME/\~}\007\""

@@ -17,6 +17,7 @@ menu=$(
 󰄄  Camera          | bash -c 'mpv --untimed --no-cache --no-config --no-osc --no-input-default-bindings --profile=low-latency --input-conf=/dev/null --title=webcam $(ls /dev/video[0,2,4,6,8] | tail -n 1)'
   Kill            | processkill
   NerdFont Icons  | dmenunerdsymbols
+󱡫  Dual Audio      | dualaudio
 EOF
 )
 

@@ -42,10 +42,13 @@ mom | ms) preconv "${file}" | refer -PS -e | groff -T pdf -m"${ext}" >"${base}.p
 c) gcc "${file}" -o "${dir}/$(basename "${base}")" && "${dir}/$(basename "${base}")" ;;
 cpp) g++ "${file}" -o "${dir}/$(basename "${base}")" && "${dir}/$(basename "${base}")" ;;
 cs) mcs "${file}" && mono "${base}.exe" ;;
+f | for | fortran | f77 | f90 | f95) gfortran -Wall "${file}" -o "${dir}/$(basename "${base}")" && "${dir}/$(basename "${base}")" ;;
 docx) libreoffice --convert-to pdf:writer_pdf_Export "${file}";;
 doc) libreoffice --convert-to pdf:writer_pdf_Export "${file}";;
 pptx) libreoffice --convert-to pdf "${file}";;
 ppt) libreoffice --convert-to pdf "${file}";;
+xlsx) libreoffice --convert-to pdf "${file}";;
+xls) libreoffice --convert-to pdf "${file}";;
 go) go run "${file}" ;;
 java) javac -d classes "${file}" && java -cp classes "${base}" ;;
 lua) lua "${file}" ;;
@@ -53,8 +56,8 @@ m) octave "${file}" ;;
 md)
   yaml_file=""
   [ -f "${dir}/metadata.yaml" ] && yaml_file="${dir}/metadata.yaml"
-  pandoc_cmd_pdf="pandoc \"${file}\" --output=\"${base}.pdf\" --pdf-engine=xelatex --filter pandoc-crossref --citeproc --highlight-style=tango"
-  pandoc_cmd_docx="pandoc \"${file}\" --output=\"${base}.docx\" --filter pandoc-crossref --citeproc --highlight-style=tango"
+  pandoc_cmd_pdf="pandoc \"${file}\" --output=\"${base}.pdf\" --pdf-engine=xelatex --filter pandoc-crossref --citeproc --syntax-highlighting=tango --variable=documentclass:scrartcl --variable=geometry:a4paper"
+  pandoc_cmd_docx="pandoc \"${file}\" --output=\"${base}.docx\" --filter pandoc-crossref --citeproc --syntax-highlighting=tango"
   [ -n "${yaml_file}" ] && pandoc_cmd_pdf="${pandoc_cmd_pdf} --metadata-file=\"${yaml_file}\"" && pandoc_cmd_docx="${pandoc_cmd_docx} --metadata-file=\"${yaml_file}\""
   eval "${pandoc_cmd_pdf}" || exit 1
   eval "${pandoc_cmd_docx}" || exit 1
