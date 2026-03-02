@@ -3,10 +3,10 @@ set shellopts '-eu'
 set ifs "\n"
 set scrolloff 3
 # set icons
-set hidden
+set nohidden
 set period 1
 set sortby ext
-set hiddenfiles ".*:*.aux:*template.out:*template.toc:*.fls:*.fdb_latexmk:*.synctex.gz:*.out:*.xdv:*.log:*.bbl:*.bcf:*.blg:*.run.xml:*.srt:compile_flags.txt:compile_commands.json:*.zwc"
+set hiddenfiles ".*:*.aux:*template.out:*template.toc:*.fls:*.fdb_latexmk:*.synctex.gz:*.out:*.xdv:*.toc:_minted:*.listing:lost+found:*.log:*.bbl:*.bcf:*.blg:*.run.xml:*.srt:compile_flags.txt:compile_commands.json:*.zwc"
 set promptfmt "\033[32m➤  \033[35;1m%d\033[0m\033[1m%f\033[0m"
 set autoquit true
 
@@ -206,7 +206,7 @@ map .       set hidden!
 map zp      cycle_preview
 map J       jumpcd
 map so      $organize
-map <a-d>   ${{ setsid -f dragon-drop -x -a "$fx" }}
+map <a-d>   ${{ setsid -f dragon-drop -x -a $fx }}
 map <a-s>   ${{ fileshare $f }}
 map b       $setbg $f
 map V       push :!nvim<space>

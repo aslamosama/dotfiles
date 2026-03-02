@@ -1,13 +1,25 @@
 #!/usr/bin/env bash
 
 THEME_DIR="$HOME/.config/x11/themeconf"
+CACHE_DIR="$HOME/.cache"
 themes=($(ls -1 "$THEME_DIR"))
 
-theme=$(printf "%s\n" "${themes[@]}" | dmenu -i -p "Select theme:")
+if [ -n "$1" ]; then
+    theme="$1"
+else
+    theme=$(printf "%s\n" "${themes[@]}" | dmenu -i -p "Select theme:")
+fi
 [ -z "$theme" ] && exit 1
 
-variant=$(printf "dark\nlight" | dmenu -i -p "Select variant:")
+if [ -n "$2" ]; then
+    variant="$2"
+else
+    variant=$(printf "dark\nlight" | dmenu -i -p "Select variant:")
+fi
 [ -z "$variant" ] && exit 1
+
+printf "%s\n" "$theme" > "$CACHE_DIR/colorscheme"
+printf "%s\n" "$variant" > "$CACHE_DIR/variant"
 
 THEME_PATH="$THEME_DIR/$theme/$variant"
 

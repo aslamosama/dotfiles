@@ -1,0 +1,34 @@
+[mgr]
+prepend_keymap = [
+  { on = "?",        run = "shell --block fzf-grep",                desc = "Ripgrep + fzf search" },
+	{ on = "/",        run = "plugin fzf",                            desc = "Jump to a file/directory via fzf" },
+	{ on = "a",        run = "shell --block --interactive 'ff '" ,    desc = "new files" },
+  { on = "r",        run = "reload",                                desc = "Reload Yazi config" },
+  { on = "i",        run = "rename",                                desc = "Rename file" },
+  { on = "O",        run = "open --interactive",                    desc = "Open Menu" },
+  { on = "o",        run = "shell --block -- mimeopen --ask %h",    desc = "Open with mimeopen (ask)" },
+  { on = "w",        for = "unix", run  = 'shell "$SHELL" --block', desc = "Open $SHELL here"},
+  { on = "l",        run = "plugin smart-enter",                    desc = "Enter the child directory, or open the file"},
+  { on = "<Right>",  run = "plugin smart-enter",                    desc = "Enter the child directory, or open the file"},
+  { on = "<C-n>",    run = "shell -- dragon-drop -x -i -T -a %s",   desc = "Drag and Drop"},
+  { on = "I",        run = "shell --block edir %s",                 desc = "Bulk rename using Edir"},
+  { on = "E",        run = "shell --block -- extractor %s",         desc = "Extract Archives" },
+  { on = "C",        run = "shell --block -- compressor %s",        desc = "Compress Files" },
+  { on = "z",        run = "noop",                                  desc = "X prefix" },
+  { on = ["b"],      run = "shell --block -- setbg %h",             desc = "Set Wallpaper" },
+  { on = ["z", "z"], run = "shell --block -- compiler %h",          desc = "Compile file" },
+  { on = ["z", "s"], run = "shell --block -- live-server %d",       desc = "Live server (cwd)" },
+  { on = ["z", "+"], run = "shell --block -- chmod +x %s",          desc = "chmod +x" },
+  { on = ["z", "-"], run = "shell --block -- chmod -x %s",          desc = "chmod -x" },
+  { on = ["z", "o"], run = "shell --block -- organize",             desc = "organize files" },
+  { on = ["z", "g"], run = "shell --block -- lazygit %d",           desc = "lazygit" },
+  { on = "!",        run = "tasks:show",                            desc = "Show task manager" },
+]
+
+[tasks]
+prepend_keymap = [
+  { on = "!",     run = "close", desc = "Close task manager" },
+]
+
+append_keymap = [
+]

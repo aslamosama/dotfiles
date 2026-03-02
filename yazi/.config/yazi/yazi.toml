@@ -1,0 +1,30 @@
+[plugin]
+prepend_previewers = [
+  { mime = "audio/*",   run = "exifaudio"},
+  { mime = "application/openxmlformats-officedocument.*", run = "office" },
+  { mime = "application/oasis.opendocument.*", run = "office" },
+  { mime = "application/ms-*", run = "office" },
+  { mime = "application/msword", run = "office" },
+  { name = "*.docx", run = "office" },
+]
+prepend_preloaders= [
+  { mime = "audio/*",   run = "exifaudio"},
+  { mime = "application/openxmlformats-officedocument.*", run = "office" },
+  { mime = "application/oasis.opendocument.*", run = "office" },
+  { mime = "application/ms-*", run = "office" },
+  { mime = "application/msword", run = "office" },
+  { name = "*.docx", run = "office" },
+]
+
+[mgr]
+ratio   = [ 2, 3, 4 ]
+show_hidden = true
+show_symlink = false
+shell_end = "reveal"
+sort_by = "extension"
+sort_sensitive = false
+sort_reverse = false
+sort_dir_first = true
+
+[preview]
+cache_dir = "~/.cache/yazi"

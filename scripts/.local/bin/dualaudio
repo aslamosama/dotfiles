@@ -1,0 +1,33 @@
+#!/bin/bash
+# dual_audio.sh - Create a combined sink for wired + Bluetooth headphones
+
+# --- CONFIG: change these if your sink names differ ---
+WIRED_SINK=$(pactl list short sinks | awk '{print $2}' | grep "alsa_output")
+BT_SINK=$(pactl list short sinks | awk '{print $2}' | grep "bluez_output")
+COMBINE_SINK_NAME="dual_headphones"
+
+# --- Step 0: remove existing combined sink if any ---
+EXISTING=$(pactl list short sinks | grep "$COMBINE_SINK_NAME" | awk '{print $1}')
+if [ -n "$EXISTING" ]; then
+    echo "Removing old combined sink(s): $EXISTING"
+    for id in $EXISTING; do
+        pactl unload-module $id
+    done
+fi
+
+# --- Step 1: create combined sink ---
+echo "Creating combined sink: $COMBINE_SINK_NAME"
+pactl load-module module-combine-sink \
+    sink_name=$COMBINE_SINK_NAME \
+    slaves=$WIRED_SINK,$BT_SINK
+
+# --- Step 2: move all active audio streams to combined sink ---
+echo "Moving audio streams to $COMBINE_SINK_NAME"
+for id in $(pactl list short sink-inputs | awk '{print $1}'); do
+    pactl move-sink-input $id $COMBINE_SINK_NAME
+done
+
+# --- Step 3: set combined sink as default (optional) ---
+pactl set-default-sink $COMBINE_SINK_NAME
+
+echo "Done! Audio should now play on wired + Bluetooth simultaneously."

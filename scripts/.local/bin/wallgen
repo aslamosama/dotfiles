@@ -1,0 +1,178 @@
+#!/bin/bash
+
+# Default values
+WIDTH=1920
+HEIGHT=1080
+SCALE=40
+BG_MODE="solid"
+BG_COLOR="#111111"
+BORDER_SIZE=20
+BORDER_COLOR="white"
+BLUR_STRENGTH=40
+SHADOW_STRENGTH=80
+TINT_COLOR=""
+TINT_STRENGTH=0
+
+INPUT=""
+OUTPUT=""
+
+############################################
+# ARGUMENT PARSING
+############################################
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+  -i | --input)
+    INPUT="$2"
+    shift 2
+    ;;
+  -o | --output)
+    OUTPUT="$2"
+    shift 2
+    ;;
+  --scale)
+    SCALE="$2"
+    shift 2
+    ;;
+  --mode)
+    BG_MODE="$2"
+    shift 2
+    ;;
+  --bg)
+    BG_COLOR="$2"
+    shift 2
+    ;;
+  --border)
+    BORDER_SIZE="$2"
+    shift 2
+    ;;
+  --border-color)
+    BORDER_COLOR="$2"
+    shift 2
+    ;;
+  --blur)
+    BLUR_STRENGTH="$2"
+    shift 2
+    ;;
+  --shadow)
+    SHADOW_STRENGTH="$2"
+    shift 2
+    ;;
+  --width)
+    WIDTH="$2"
+    shift 2
+    ;;
+  --height)
+    HEIGHT="$2"
+    shift 2
+    ;;
+  --tint)
+    TINT_COLOR="$2"
+    TINT_STRENGTH="$3"
+    shift 3
+    ;;
+  -h | --help)
+    echo "Usage:"
+    echo "./wallgen -i input.jpg -o output.jpg [options]"
+    echo ""
+    echo "Options:"
+    echo "--scale N              Image scale percentage (default 40)"
+    echo "--tint COLOR STRENGTH  (example: --tint \"#ff0000\" 20)"
+    echo "--mode solid|auto|blur Background mode"
+    echo "--bg COLOR             Background color (solid mode)"
+    echo "--border N             Border width"
+    echo "--border-color COLOR   Border color"
+    echo "--blur N               Blur strength (blur mode)"
+    echo "--shadow N             Shadow strength (0-100)"
+    echo "--width N              Wallpaper width (default 1920)"
+    echo "--height N             Wallpaper height (default 1080)"
+    exit 0
+    ;;
+  *)
+    echo "Unknown option: $1"
+    exit 1
+    ;;
+  esac
+done
+
+if [[ -z "$INPUT" || -z "$OUTPUT" ]]; then
+  echo "Input and output required."
+  exit 1
+fi
+
+TARGET_W=$((WIDTH * SCALE / 100))
+TARGET_H=$((HEIGHT * SCALE / 100))
+
+TMP_BG=$(mktemp --suffix=.miff)
+TMP_FG_SRC=$(mktemp --suffix=.miff)
+TMP_FG=$(mktemp --suffix=.miff)
+
+############################################
+# OPTIONAL TINT ON SOURCE IMAGE
+############################################
+
+if [[ -n "$TINT_COLOR" && "$TINT_STRENGTH" -gt 0 ]]; then
+  magick "$INPUT" \
+    \( +clone -fill "$TINT_COLOR" -colorize 100 \) \
+    -compose blend -define compose:args=$TINT_STRENGTH \
+    -composite \
+    "$TMP_FG_SRC"
+else
+  cp "$INPUT" "$TMP_FG_SRC"
+fi
+
+############################################
+# BACKGROUND CREATION
+############################################
+
+case "$BG_MODE" in
+solid)
+  magick -size ${WIDTH}x${HEIGHT} xc:"$BG_COLOR" "$TMP_BG"
+  ;;
+auto)
+  # Get dominant color
+  DOM_COLOR=$(magick "$TMP_FG_SRC" \
+    -resize 200x200 \
+    -colors 8 \
+    -format "%c" histogram:info:- |
+    sort -nr |
+    head -n 1 |
+    sed -E 's/.*\(([^)]+)\).*/\1/' |
+    awk -F',' '{printf("rgb(%d,%d,%d)", $1, $2, $3)}')
+
+  magick -size ${WIDTH}x${HEIGHT} xc:"$DOM_COLOR" "$TMP_BG"
+  ;;
+blur)
+  magick "$TMP_FG_SRC" \
+    -resize ${WIDTH}x${HEIGHT}^ \
+    -gravity center \
+    -extent ${WIDTH}x${HEIGHT} \
+    -blur 0x${BLUR_STRENGTH} \
+    "$TMP_BG"
+  ;;
+*)
+  echo "Invalid mode. Use solid | auto | blur"
+  exit 1
+  ;;
+esac
+
+############################################
+# FOREGROUND
+############################################
+
+magick "$TMP_FG_SRC" \
+  -resize ${TARGET_W}x${TARGET_H} \
+  -bordercolor "$BORDER_COLOR" -border "$BORDER_SIZE" \
+  \( +clone -background black -shadow ${SHADOW_STRENGTH}x8+0+8 \) \
+  +swap -background none -layers merge +repage \
+  "$TMP_FG"
+
+############################################
+# COMPOSITE
+############################################
+
+magick "$TMP_BG" "$TMP_FG" -gravity center -composite "$OUTPUT"
+
+rm -f "$TMP_BG" "$TMP_FG" "$TMP_FG_SRC"
+
+echo "Wallpaper created: $OUTPUT"

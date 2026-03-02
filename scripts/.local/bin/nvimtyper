@@ -1,0 +1,29 @@
+#!/bin/bash
+
+STORE_DIR="$HOME/.local/share/vimtyper"
+mkdir -p "$STORE_DIR"
+
+HISTORY_FILE="$STORE_DIR/history.txt"
+TMPFILE="$STORE_DIR/current.txt"
+
+ACTIVE_WIN=$(xdotool getwindowfocus)
+
+{
+  echo ""
+  echo ""
+  echo "------ History ------"
+  tac "$HISTORY_FILE" 2>/dev/null
+} >"$TMPFILE"
+
+st -T "vimtyper" -c "vimtyper" -g "120x28+200+60" -e nvim "+normal! gg" "$TMPFILE"
+
+TEXT=$(awk '/------/{exit} {print}' "$TMPFILE")
+TEXT=$(printf "%s" "$TEXT" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+if [ -n "$TEXT" ]; then
+  echo "$TEXT" >>"$HISTORY_FILE"
+fi
+
+xdotool windowfocus "$ACTIVE_WIN"
+xdotool keyup Shift_L Shift_R Control_L Control_R Alt_L Alt_R Super_L Super_R
+xdotool type --delay 0 "$TEXT"

@@ -18,6 +18,7 @@ unset command
 alias based="NVIM_APPNAME=based nvim"
 
 alias \
+  lf="yazi" \
   be="fzf-fd \$HOME/.local/bin | xargs -r nvim" \
   ce="confedit" \
   cg="fzf-grep \$HOME/.config" \

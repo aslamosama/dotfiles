@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+THEME_DIR="$HOME/.config/x11/themeconf"
+CACHE_DIR="$HOME/.cache"
+THEME_FILE="$CACHE_DIR/colorscheme"
+VARIANT_FILE="$CACHE_DIR/variant"
+
+[ ! -f "$THEME_FILE" ] && echo "No cached theme found." && exit 1
+[ ! -f "$VARIANT_FILE" ] && echo "No cached variant found." && exit 1
+
+# Read values
+theme=$(<"$THEME_FILE")
+variant=$(<"$VARIANT_FILE")
+THEME_PATH="$THEME_DIR/$theme/$variant"
+
+while true; do
+  setbg -s "$THEME_PATH/wallpapers"
+
+  choice=$(printf "Yes\nNo" | dmenu -i -p "Run again?")
+  [ "$choice" != "Yes" ] && break
+done

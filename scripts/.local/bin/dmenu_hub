@@ -6,6 +6,7 @@ menu=$(
   cat <<EOF
 󰀻  Apps            | dmenu_run -i -p "dmenu_run:"
   Web Search      | dmenu_web
+  Cycle Wall      | themecycle
   Themes          | themeflip
 󰉦  Bar colors      | bar_colors_toggle
 󰌹  Handler         | dmenuhandler

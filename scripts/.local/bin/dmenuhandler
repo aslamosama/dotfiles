@@ -88,16 +88,16 @@ case "$choice" in
 "$opt_video")
   format=$(select_quality)
   download_in_terminal "yt-dlp: Video" \
-    "yt-dlp --no-playlist -f \"$format\" -P \"$HOME/Downloads\" --embed-metadata -ic \"$feed\""
+    "yt-dlp --cookies-from-browser firefox --no-playlist -f \"$format\" -P \"$HOME/Downloads\" --embed-metadata -ic \"$feed\""
   ;;
 "$opt_playlist")
   format=$(select_quality)
   download_in_terminal "yt-dlp: Playlist" \
-    "yt-dlp -f \"$format\" -P \"$HOME/Downloads\" --embed-metadata -ic \"$feed\""
+    "yt-dlp --cookies-from-browser firefox -f \"$format\" -P \"$HOME/Downloads\" --embed-metadata -ic \"$feed\""
   ;;
 "$opt_audio")
   download_in_terminal "yt-dlp: Audio" \
-    "yt-dlp --no-playlist -f bestaudio -P \"$HOME/Downloads\" --embed-metadata --restrict-filenames \"$feed\""
+    "yt-dlp --cookies-from-browser firefox --no-playlist -f bestaudio -P \"$HOME/Downloads\" --embed-metadata --restrict-filenames \"$feed\""
   ;;
 "$opt_download")
   download_dir="$HOME/Downloads"

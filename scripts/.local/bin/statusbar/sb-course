@@ -1,0 +1,22 @@
+#!/bin/sh
+
+course=$(yq -r '.short' $HOME/ms/current/info.yaml)
+icon="  "
+
+case $BLOCK_BUTTON in
+1)
+  setsid -f "$TERMINAL" -e ms.sh
+  pkill -RTMIN+22 "${STATUSBAR:-dwmblocks}"
+  ;;
+3)
+  setsid -f "$TERMINAL" -e ms2.sh
+  pkill -RTMIN+22 "${STATUSBAR:-dwmblocks}"
+  ;;
+6) setsid -f "$TERMINAL" -e "$EDITOR" "$0" ;;
+esac
+
+if [ ! -e ~/.cache/bar_color ]; then
+  echo "$icon$course "
+else
+  echo "^C3^$icon^d^$course "
+fi
