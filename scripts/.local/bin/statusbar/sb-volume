@@ -4,7 +4,7 @@
 
 case $BLOCK_BUTTON in
 1)
-  setsid -w -f "$TERMINAL" -c volume-ui -g=80x15+353+20 -e pulsemixer
+  setsid -w -f "$TERMINAL" -c volume-ui -g=80x15+513+20 -e pulsemixer
   pkill -RTMIN+10 "${STATUSBAR:-dwmblocks}"
   ;;
 2) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;

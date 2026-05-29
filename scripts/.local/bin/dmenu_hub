@@ -5,20 +5,21 @@ dmenu_command="dmenu -i"
 menu=$(
   cat <<EOF
 󰀻  Apps            | dmenu_run -i -p "dmenu_run:"
-  Web Search      | dmenu_web
+  Games           | game-launcher
   Cycle Wall      | themecycle
   Themes          | themeflip
-󰉦  Bar colors      | bar_colors_toggle
+󰋊  Mount           | mounter
+󱁌  Unmount         | unmounter
 󰌹  Handler         | dmenuhandler
   Screenshot      | maimpick
   Record          | dmenurecord
 󰌌  Keybinds        | keybinds
-󰋊  Mount           | mounter
-󱁌  Unmount         | unmounter
-󰄄  Camera          | bash -c 'mpv --untimed --no-cache --no-config --no-osc --no-input-default-bindings --profile=low-latency --input-conf=/dev/null --title=webcam $(ls /dev/video[0,2,4,6,8] | tail -n 1)'
-  Kill            | processkill
+󰄄  Camera          | bash -c 'mpv av://v4l2:/dev/video0 --demuxer-lavf-format=video4linux2 --demuxer-lavf-o-set=input_format=mjpeg --untimed --no-cache --no-config --no-osc --no-input-default-bindings --profile=low-latency --input-conf=/dev/null --title=webcam'
+  Web Search      | dmenu_web
   NerdFont Icons  | dmenunerdsymbols
 󱡫  Dual Audio      | dualaudio
+󰉦  Bar colors      | bar_colors_toggle
+  Kill            | processkill
 EOF
 )
 

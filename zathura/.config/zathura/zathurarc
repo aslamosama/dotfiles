@@ -1,6 +1,6 @@
 # vim: filetype=zathurarc
 
-set default-bg "#eeeeee"
+set default-bg "#aaaaaa"
 set recolor-darkcolor "#000000"
 set recolor-lightcolor "#eeeeee"
 
@@ -10,7 +10,7 @@ set statusbar-v-padding         0
 set page-padding                1
 set selection-clipboard         clipboard
 set adjust-open                 width
-set recolor                     true
+set recolor                     false
 set recolor-keephue             true
 set render-loading              true
 set guioptions                  ""

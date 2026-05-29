@@ -33,9 +33,10 @@ take_screenshot() {
   [ -f "$output" ] || return
   [ -f "$sound" ] && paplay "$sound" &
   "$xclip_cmd" <"$output"
-  action=$(printf "Nothing\nOpen in lf\nEdit" | dmenu -i -p "What now?")
+  action=$(printf "Nothing\nOpen in yazi\nDrag n Drop\nEdit" | dmenu -i -p "What now?")
   case "$action" in
-  "Open in lf") st -e lf "$output" ;;
+  "Open in yazi") st -e yazi "$output" ;;
+  "Drag n Drop") dragon-drop -x -T -a "$output" ;;
   "Edit") setsid -f gradia "$output" >/dev/null 2>&1 & ;;
   esac
   echo "$(date '+%Y-%m-%d %H:%M:%S') [screenshot] $output" >>"$log_file"

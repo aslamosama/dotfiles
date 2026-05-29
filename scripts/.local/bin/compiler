@@ -51,6 +51,7 @@ xlsx) libreoffice --convert-to pdf "${file}";;
 xls) libreoffice --convert-to pdf "${file}";;
 go) go run "${file}" ;;
 java) javac -d classes "${file}" && java -cp classes "${base}" ;;
+jl) julia ;;
 lua) lua "${file}" ;;
 m) octave "${file}" ;;
 md)

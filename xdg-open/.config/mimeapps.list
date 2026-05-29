@@ -9,5 +9,6 @@ image/jpeg=img.desktop;
 image/gif=img.desktop;
 video/x-matroska=video.desktop
 video/mp4=video.desktop
+video/mpeg=video.desktop
 inode/directory=file.desktop
 video/webm=mpv.desktop;

@@ -38,5 +38,5 @@ application/octet-stream)
   *) zathura "$openee" >/dev/null 2>&1 ;;
   esac
   ;;
-*) lf -command "set hidden" "$openee" ;;
+*) yazi "$openee" ;;
 esac

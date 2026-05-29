@@ -20,7 +20,7 @@ selected_course=$(echo "$course_folders" | fzf \
   --prompt="Select course: " --height=100% \
   --preview-window "right,60%,border-top" \
   --border=block --margin=5%,10%,5%,10% \
-  --preview "fuz-preview $sem_path/{}/master.pdf" )
+  --preview "fuz-preview $sem_path/{}/cover.jpg" )
 if [ -z "$selected_course" ]; then
   echo "No course selected"
   exit 0

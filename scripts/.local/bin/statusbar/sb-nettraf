@@ -27,7 +27,7 @@ rx=$(update /sys/class/net/[ew]*/statistics/rx_bytes)
 tx=$(update /sys/class/net/[ew]*/statistics/tx_bytes)
 
 if [ ! -e ~/.cache/bar_color ]; then
-  printf "󰜮  %4sB 󰜷  %4sB\\n" $(numfmt --to=iec $rx $tx)
+  printf "󰄼  %4sB 󰄿  %4sB\\n" $(numfmt --to=iec $rx $tx)
   exit 0
 fi
-printf "^C2^󰜮  ^d^%4sB ^C3^󰜷  ^d^%4sB\\n" $(numfmt --to=iec $rx $tx)
+printf "^C2^󰄼  ^d^%4sB ^C3^󰄿  ^d^%4sB\\n" $(numfmt --to=iec $rx $tx)

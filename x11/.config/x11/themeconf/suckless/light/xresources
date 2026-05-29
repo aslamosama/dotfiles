@@ -3,16 +3,17 @@
 #include "./themeconf/suckless/light/colors"
 
 Xcursor.theme: phinger-cursors-dark
-Xcursor.size: 24
+Xcursor.size: 32
 
-st.font:       JetBrains Mono:pixelsize=14
+Xft.dpi:       144
+st.font:       JetBrains Mono:pixelsize=20
 st.borderpx:   10
 st.alpha:      1
 st.tabspaces:  2
 st.cwscale:    1.0
 st.chscale:    1.0
 
-dmenu.font:    JetBrainsMono Nerd Font:style:Medium:pixelsize=14
+dmenu.font:    JetBrainsMono Nerd Font:style:Medium:pixelsize=20
 
 dwm.borderpx:  1
 dwm.mfact:     0.55

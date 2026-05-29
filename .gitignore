@@ -1,3 +1,8 @@
 .config/nvim/spell
 .local/share/script-data/chars/frecent_emojis.json
 .config/x11/xresources
+/yazi/.config/yazi/plugins
+/xdg-open/.local/share/applications/gog_com-Dead_Cells_1.desktop
+/xdg-open/.local/share/applications/gog_com-Hollow_Knight_Silksong_1.desktop
+/xdg-open/.local/share/applications/gog_com-Papers_Please_1.desktop
+/xdg-open/.local/share/applications/gog_com-Terraria_1.desktop
