@@ -311,7 +311,7 @@ check_disk_usage() {
   info "Displaying disk usage report"
   if command_exists dysk; then
     dysk -u binary
-    dust "$HOME" -X .drive
+    dust "$HOME" -X .drive -X network
   else
     warn "dysk is not installed. Using df."
     df -h
@@ -353,7 +353,7 @@ update_network_index() {
   info "Updating Network Index"
   if command_exists fd; then
     cd "$HOME/network"
-    fd --color=never --type directory --max-depth 5 -E .git -E Private >network
+    fd --color=never --type directory --max-depth 10 -E .git -E Private >network
     cd "$HOME"
   else
     warn "fd not installed."
